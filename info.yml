@@ -8,7 +8,7 @@ project:
   members:
     member1:
       name: 'Victor Manuel'
-      surname: 'Valtueña' 
+      surname: 'ValtueÃ±a' 
       githubUsername: 'VictorValtuena'
     member2:
       name: 'Guillermo'
@@ -18,7 +18,4 @@ project:
       name: 'Alvaro'
       surname: 'Huerta' 
       githubUsername: 'AlvaroHuG'
-    member4:
-      name: 'Name4'
-      surname: 'Surname4' 
-      githubUsername: 'Name1gitUserName4'
+  
