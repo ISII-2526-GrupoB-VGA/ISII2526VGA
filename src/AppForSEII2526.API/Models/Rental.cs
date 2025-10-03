@@ -8,6 +8,8 @@ namespace AppForSEII2526.API.Models
         public string DeliverAddress { get; set; }
         public  int Id { get; set; }
         public string Name { get; set; }
+
+        public PaymentMethodType PaymentMethod { get; set; }
         public DateTime RentalDate { get; set; }
         public DateTime RentalDateFrom { get; set; }
         public DateTime RentalDateTo { get; set; }
@@ -50,6 +52,13 @@ namespace AppForSEII2526.API.Models
         public override int GetHashCode()
         {
             return HashCode.Combine(Id, Name, Surname, RentalDate, RentalDateFrom, RentalDateTo, Price, DeliverAddress);
+        }
+
+        public enum PaymentMethodType
+        {
+            CreditCard,
+            PayPal,
+            Cash
         }
 
     }
