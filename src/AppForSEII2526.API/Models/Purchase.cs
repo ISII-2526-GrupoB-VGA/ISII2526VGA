@@ -1,21 +1,23 @@
 ﻿using System;
 
-public class Puchase
+public class Purchase
 {
-	pulic string CustomerUserName { get; set; }
+
+	public string CustomerUserName { get; set; }
 	public string CustomerUserSurname { get; set; }
 	public string DeliveryAddress { get; set; }
-	public int id { get; set; }
+	[Key]
+    public int id { get; set; }
 	public PaymentMethodType PaymentMethod { get; set; }
 	public DateTime PurchaseDate { get; set; }
 	public double TotalPrice { get; set; }
 	public int TotalQuantity { get; set; }
 
-    public	Puchase()
+    public	Purchase()
 	{
 	}
 
-	public Puchase(string customerUserName, string customerUserSurname, string deliveryAddress, int id, PaymentMethodType paymentMethod, DateTime purchaseDate, double totalPrice, int totalQuantity)
+	public Purchase(string customerUserName, string customerUserSurname, string deliveryAddress, int id, PaymentMethodType paymentMethod, DateTime purchaseDate, double totalPrice, int totalQuantity)
 	{
 		CustomerUserName = customerUserName;
 		CustomerUserSurname = customerUserSurname;
@@ -27,7 +29,7 @@ public class Puchase
 		TotalQuantity = totalQuantity;
     }
 
-	public Puchase(string customerUserName, string customerUserSurname, string deliveryAddress, PaymentMethodType paymentMethod, DateTime purchaseDate, double totalPrice, int totalQuantity)
+	public Purchase(string customerUserName, string customerUserSurname, string deliveryAddress, PaymentMethodType paymentMethod, DateTime purchaseDate, double totalPrice, int totalQuantity)
 	{
 		CustomerUserName = customerUserName;
 		CustomerUserSurname = customerUserSurname;
@@ -44,7 +46,7 @@ public class Puchase
 		{
 			return false;
 		}
-		Puchase other = (Puchase)obj;
+		Purchase other = (Purchase)obj;
 		return CustomerUserName == other.CustomerUserName &&
 			   CustomerUserSurname == other.CustomerUserSurname &&
 			   DeliveryAddress == other.DeliveryAddress &&
