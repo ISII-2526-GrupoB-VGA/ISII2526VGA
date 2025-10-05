@@ -13,6 +13,8 @@ public class Device
 	public IList <RentDevice> RentedDevices { get; set; }
 	public IList <ReviewItem> ReviewItems { get; set; }
 	public int Year { get; set; }
+	public int ModelId { get; set; }
+	public Model Model { get; set; }
 
     public Device()
 	{
