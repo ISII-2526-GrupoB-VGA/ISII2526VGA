@@ -2,12 +2,24 @@
 
 public class ReviewItem
 {
-    public string Comment { get; set; }
+
+    [PrimaryKey(nameof(DeviceId), nameof(ReviewId))]
+
     public int DeviceId { get; set; }
+
+    public string Comment { get; set; }
+
+    [ForeignKey(nameof(DeviceId))]
+
+
     public int ID { get; set; }
-    public float Rating { get; set; }
+    public float Rating { get; set; }  
+    [ForeignKey(nameof(ReviewId))]
     public string ReviewId { get; set; }
 
+    public Review Review { get; set; } //Esto añadí sin saber muy bien porque
+    public Device Device { get; set; } //Esto tampoco se muy bien pq, pero he copiado lo de PurchaseItem
+                                       //Borrar estos comentarios tras corregirlos
     public ReviewItem()
     {
     }
