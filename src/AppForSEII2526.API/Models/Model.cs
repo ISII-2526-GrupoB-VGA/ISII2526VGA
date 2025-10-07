@@ -4,8 +4,9 @@ public class Model
 {
 	public int Id { get; set; }
 	public string NameModel { get; set; }
-	
-	public Model() { }
+	public List<Device> Devices { get; set; } = new List<Device>();
+
+    public Model() { }
 
 	public Model(int id, string NameModel)
 	{
