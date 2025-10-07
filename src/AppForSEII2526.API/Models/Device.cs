@@ -56,7 +56,7 @@ public class Device
 		Year = year;
     }
 
-	public override bool Equals(object obj)
+	public override bool Equals(object? obj)
 	{
 		if (ReferenceEquals(this, obj))
 			return true;
@@ -75,16 +75,18 @@ public class Device
 			   Year == other.Year;
 	}
 
-	public override int GetHashCode()
-	{
-		return HashCode.Combine(Id, 
-								Brand?.ToLowerInvariant(), 
-								Color?.ToLowerInvariant(), 
-								Name?.ToLowerInvariant(), 
-								priceForPurchase, 
-								priceForRent, 
-								quantityForPurchase, 
-								quantityForRent, 
-								Year);
-	}
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(
+            Id,
+            Brand?.ToLowerInvariant(),
+            Color?.ToLowerInvariant(),
+            Name?.ToLowerInvariant(),
+            priceForPurchase,
+            priceForRent,
+            quantityForPurchase,
+            quantityForRent
+        );
+    }
+
 }
