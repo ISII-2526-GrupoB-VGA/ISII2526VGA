@@ -10,7 +10,7 @@ public class Review
     public DateTime DateOfReview { get; set; }
     public double OverallRating { get; set; }
     [System.ComponentModel.DataAnnotations.Required]
-    [Key]
+    
     public int ReviewId { get; set; }
     [System.ComponentModel.DataAnnotations.Required]
     public string ReviewTitle { get; set; }

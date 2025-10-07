@@ -1,5 +1,5 @@
 ﻿using System;
-[PrimaryKey(nameof(DeviceId), nameof(ReviewId), nameof(Id))]
+
 public class ReviewItem
 {
 
