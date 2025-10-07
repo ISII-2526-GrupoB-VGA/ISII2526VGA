@@ -2,19 +2,17 @@
 [PrimaryKey(nameof(DeviceId), nameof(purchaseId))]
 public class PurchaseItem
 {
-    
-    
-	public string Description { get; set; }
-	
-	public int DeviceId { get; set; }
-    [ForeignKey(nameof(DeviceId))]
-    public Device Device { get; set; }
-    
 
+	
+	public string Description { get; set; }
+
+	public int DeviceId { get; set; }
+    public Device Device { get; set; }
+
+	[Precision(10, 2)]
     public double Price { get; set; }
 
 	public int purchaseId { get; set; }
-	[ForeignKey(nameof(purchaseId))]
 	public Purchase Purchase { get; set; }
 
     

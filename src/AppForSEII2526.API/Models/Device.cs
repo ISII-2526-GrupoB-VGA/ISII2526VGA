@@ -16,6 +16,8 @@ public class Device
 	public int ModelId { get; set; }
 	public Model Model { get; set; }
 
+	public IList<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
+
     public Device()
 	{
 	}
