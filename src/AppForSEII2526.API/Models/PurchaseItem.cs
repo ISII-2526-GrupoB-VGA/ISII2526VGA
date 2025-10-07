@@ -1,8 +1,8 @@
 ﻿using System;
-
+[PrimaryKey(nameof(DeviceId), nameof(purchaseId))]
 public class PurchaseItem
 {
-    [PrimaryKey(nameof(DeviceId), nameof(purchaseId))]
+    
     
 	public string Description { get; set; }
 	

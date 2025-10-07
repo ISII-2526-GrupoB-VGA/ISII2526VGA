@@ -40,7 +40,7 @@ public class Purchase
 		TotalQuantity = totalQuantity;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj == null || GetType() != obj.GetType())
         {
@@ -62,5 +62,13 @@ public class Purchase
 		{
 		return HashCode.Combine(CustomerUserName, CustomerUserSurname, DeliveryAddress, id, PaymentMethod, PurchaseDate, TotalPrice, TotalQuantity);
     }
+
+    public enum PaymentMethodType
+    {
+        Cash,
+        CreditCard,
+        Paypal
+    }
+
 
 }
