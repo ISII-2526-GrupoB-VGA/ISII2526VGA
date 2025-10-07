@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="Model">
+    <Position X="0.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAgAAABAAAQAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Model.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Devices" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Device">
+    <Position X="3.75" Y="2.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAISAAAABABFAAAAgAAACIQAAAAAAIAAAAgAgBABAAA=</HashCode>
+      <FileName>Models\Device.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Model" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="PurchaseItems" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Purchase">
+    <Position X="10.5" Y="0.5" Width="2.5" />
+    <NestedTypes>
+      <Enum Name="Purchase.PaymentMethodType" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Models\Purchase.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAABAAAAQgKAAAAAAAAAAQIQAAAAAAAAAAgE=</HashCode>
+      <FileName>Models\Purchase.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="ApplicationUser" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="PurchaseItems" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="PurchaseItem">
+    <Position X="7.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAQAgAgQAgAAAAAAAAAAAAIAAEAAAgAAAAAA=</HashCode>
+      <FileName>Models\PurchaseItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Device" />
+      <Property Name="Purchase" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="AppForSEII2526.API.Models.ApplicationUser">
+    <Position X="15" Y="1" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAQAAEAAAAAAAAAgAAAAAAAAAEAAAAACAAAAAAAAAAg=</HashCode>
+      <FileName>Models\ApplicationUser.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Purchases" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
