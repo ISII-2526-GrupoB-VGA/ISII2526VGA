@@ -8,7 +8,7 @@ public class PurchaseItem
 	
 	public int DeviceId { get; set; }
     [ForeignKey(nameof(DeviceId))]
-    public Device Device { get; set; }]
+    public Device Device { get; set; }
     
 
     public double Price { get; set; }

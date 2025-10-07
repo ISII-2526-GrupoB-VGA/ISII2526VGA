@@ -40,24 +40,25 @@ public class Purchase
 		TotalQuantity = totalQuantity;
     }
 
-	public equals override bool Equals(object obj)
-	{
-		if (obj == null || GetType() != obj.GetType())
-		{
-			return false;
-		}
-		Purchase other = (Purchase)obj;
-		return CustomerUserName == other.CustomerUserName &&
-			   CustomerUserSurname == other.CustomerUserSurname &&
-			   DeliveryAddress == other.DeliveryAddress &&
-			   id == other.id &&
-			   PaymentMethod == other.PaymentMethod &&
-			   PurchaseDate == other.PurchaseDate &&
-			   TotalPrice == other.TotalPrice &&
-			   TotalQuantity == other.TotalQuantity;
+    public override bool Equals(object obj)
+    {
+        if (obj == null || GetType() != obj.GetType())
+        {
+            return false;
+        }
+        Purchase other = (Purchase)obj;
+        return CustomerUserName == other.CustomerUserName &&
+               CustomerUserSurname == other.CustomerUserSurname &&
+               DeliveryAddress == other.DeliveryAddress &&
+               id == other.id &&
+               PaymentMethod == other.PaymentMethod &&
+               PurchaseDate == other.PurchaseDate &&
+               TotalPrice == other.TotalPrice &&
+               TotalQuantity == other.TotalQuantity;
     }
 
-	public override int GetHashCode()
+
+    public override int GetHashCode()
 		{
 		return HashCode.Combine(CustomerUserName, CustomerUserSurname, DeliveryAddress, id, PaymentMethod, PurchaseDate, TotalPrice, TotalQuantity);
     }
