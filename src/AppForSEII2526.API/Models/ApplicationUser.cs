@@ -15,6 +15,8 @@ public class ApplicationUser : IdentityUser {
     [System.ComponentModel.DataAnnotations.Phone]
     public int phoneNumber { get; set; }
 
+    public List<Purchase> Purchases { get; set; } = new();
+
     public ApplicationUser() {
     }
 
