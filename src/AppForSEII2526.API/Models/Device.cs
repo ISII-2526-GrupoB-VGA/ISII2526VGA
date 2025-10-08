@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 public class Device
 {
@@ -18,13 +19,13 @@ public class Device
 	public int quantityForPurchase { get; set; }
 	[Required]
     public int quantityForRent { get; set; }
-	public IList <RentDevice> RentedDevices { get; set; }
-	public IList <ReviewItem> ReviewItems { get; set; }
+	public List <RentDevice> RentedDevices { get; set; }
+	public List <ReviewItem> ReviewItems { get; set; }
 	public int Year { get; set; }
 	public int ModelId { get; set; }
 	public Model Model { get; set; }
 
-	public IList<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
+	public List<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
 
     public Device()
 	{

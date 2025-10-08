@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 public class Purchase
 {
     [Required]
@@ -15,7 +15,7 @@ public class Purchase
     public double TotalPrice { get; set; }
     [Required]
     public int TotalQuantity { get; set; }
-    public IList<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
+    public List<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
 
     public ApplicationUser ApplicationUser { get; set; }
 
