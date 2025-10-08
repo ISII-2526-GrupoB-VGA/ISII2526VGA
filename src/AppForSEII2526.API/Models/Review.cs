@@ -6,6 +6,8 @@ public class Review
     public int CustomerId { get; set; }
     public DateTime DateOfReview { get; set; }
     public double OverallRating { get; set; }
+    [System.ComponentModel.DataAnnotations.Required]
+    
     public int ReviewId { get; set; }
     public string ReviewTitle { get; set; }
 
