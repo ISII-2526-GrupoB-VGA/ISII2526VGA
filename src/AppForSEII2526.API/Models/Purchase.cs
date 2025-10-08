@@ -2,17 +2,19 @@
 
 public class Purchase
 {
-    [System.ComponentModel.DataAnnotations.Required]
+    [Required]
     public string CustomerUserName { get; set; }
 	public string CustomerUserSurname { get; set; }
-    [System.ComponentModel.DataAnnotations.Required]
+    [Required]
     public string DeliveryAddress { get; set; }
     public int id { get; set; }
-	public PaymentMethodType PaymentMethod { get; set; }
+    [Required]
+    public PaymentMethodType PaymentMethod { get; set; }
 	public DateTime PurchaseDate { get; set; }
-  
+    [Required]
     public double TotalPrice { get; set; }
-	public int TotalQuantity { get; set; }
+    [Required]
+    public int TotalQuantity { get; set; }
     public IList<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
 
     public ApplicationUser ApplicationUser { get; set; }

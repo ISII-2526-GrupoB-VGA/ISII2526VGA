@@ -10,13 +10,14 @@ public class PurchaseItem
     public Device Device { get; set; }
 
 	[Precision(10, 2)]
+    [Required]
     public double Price { get; set; }
 
 	public int purchaseId { get; set; }
 	public Purchase Purchase { get; set; }
 
-    
-	public int Quantity { get; set; }
+    [Required]
+    public int Quantity { get; set; }
 
     public PurchaseItem()
 	{

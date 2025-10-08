@@ -3,7 +3,8 @@
 public class Model
 {
 	public int Id { get; set; }
-	public string NameModel { get; set; }
+    [Required]
+    public string NameModel { get; set; }
 	public List<Device> Devices { get; set; } = new List<Device>();
 
     public Model() { }
