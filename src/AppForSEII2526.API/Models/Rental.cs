@@ -6,15 +6,25 @@ namespace AppForSEII2526.API.Models
     {
 
         public string DeliverAddress { get; set; }
+        [Required]
         public  int Id { get; set; }
+        [Required]
         public string Name { get; set; }
-
+        [Required]
         public PaymentMethodType PaymentMethod { get; set; }
+        [Required]
         public DateTime RentalDate { get; set; }
+        [Required]
         public DateTime RentalDateFrom { get; set; }
+        [Required]
         public DateTime RentalDateTo { get; set; }
+        [Required]
         public string Surname { get; set; }
+        [Required]
+        [Range(0.01, 10000.00, ErrorMessage = "El precio debe estar entre 0.01 y 10000.00")]
         public double Price { get; set; }
+        
+
 
         public Rental() { }
         public Rental(int id, string name, string surname, DateTime rentalDate, DateTime rentalDateFrom, DateTime rentalDateTo, double price, string deliverAddress)
