@@ -1,4 +1,6 @@
 ﻿using System;
+namespace AppForSEII2526.API.Models;
+
 [PrimaryKey(nameof(DeviceId), nameof(purchaseId))]
 public class PurchaseItem
 {
