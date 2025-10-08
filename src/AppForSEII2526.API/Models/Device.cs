@@ -2,14 +2,22 @@
 
 public class Device
 {
-	public string Brand { get; set; }
+    [Required]
+    public string Brand { get; set; }
 	public string Color { get; set; }
 	public int Id { get; set; }
+	[Required]
 	public string Name { get; set; }
-	public double priceForPurchase { get; set; }
-	public double priceForRent { get; set; }
+    [Range(0.01, 10000.00, ErrorMessage = "El precio debe estar entre 0.01 y 10000.00")]
+    [Required]
+    public double priceForPurchase { get; set; }
+	[Range(0.01, 10000.00, ErrorMessage = "El precio debe estar entre 0.01 y 10000.00")]
+	[Required]
+    public double priceForRent { get; set; }
+	[Required]
 	public int quantityForPurchase { get; set; }
-	public int quantityForRent { get; set; }
+	[Required]
+    public int quantityForRent { get; set; }
 	public IList <RentDevice> RentedDevices { get; set; }
 	public IList <ReviewItem> ReviewItems { get; set; }
 	public int Year { get; set; }
