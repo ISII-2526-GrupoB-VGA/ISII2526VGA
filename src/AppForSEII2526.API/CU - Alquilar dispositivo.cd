@@ -19,6 +19,9 @@
       <HashCode>EAADCAAAAQAAAAAQhAAAAEUABAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\Rental.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="ApplicationUser" />
+    </ShowAsAssociation>
     <ShowAsCollectionAssociation>
       <Property Name="RentalDevices" />
     </ShowAsCollectionAssociation>
@@ -34,7 +37,7 @@
       <Property Name="Device" />
     </ShowAsAssociation>
   </Class>
-  <Class Name="Device">
+  <Class Name="AppForSEII2526.API.Models.Device">
     <Position X="0.5" Y="0.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAISAAAABABFAAAAgAAACIQAAAAAAIAAAAgAgBABAAA=</HashCode>
@@ -47,7 +50,7 @@
       <Property Name="RentedDevices" />
     </ShowAsCollectionAssociation>
   </Class>
-  <Class Name="Model">
+  <Class Name="AppForSEII2526.API.Models.Model">
     <Position X="4" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAACAAAAAAAAAAAAgAAABAAAQAAAAIAAAAAAAAAAAAA=</HashCode>
@@ -55,6 +58,16 @@
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
       <Property Name="Devices" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="AppForSEII2526.API.Models.ApplicationUser">
+    <Position X="12" Y="1" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAwAAEAAAAAAAAAgAAAAAAAAAEAAAAACAAAAAAAAAAg=</HashCode>
+      <FileName>Models\ApplicationUser.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Rentals" />
     </ShowAsCollectionAssociation>
   </Class>
   <Font Name="Segoe UI" Size="9" />
