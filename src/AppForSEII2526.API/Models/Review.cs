@@ -2,14 +2,27 @@
 
 public class Review
 {
+
+    [System.ComponentModel.DataAnnotations.Required]
     public int CustomerCount { get; set; }
+    [System.ComponentModel.DataAnnotations.Required]
     public int CustomerId { get; set; }
     public DateTime DateOfReview { get; set; }
     public double OverallRating { get; set; }
     [System.ComponentModel.DataAnnotations.Required]
-    
+
     public int ReviewId { get; set; }
+    [System.ComponentModel.DataAnnotations.Required]
     public string ReviewTitle { get; set; }
+    public IList<ReviewItem> ReviewItems { get; set; } = new List<ReviewItem>();
+
+    public ApplicationUser ApplicationUser
+    {
+        get => default;
+        set
+        {
+        }
+    }
 
     public Review()
     {
@@ -52,3 +65,4 @@ public class Review
                                 ReviewTitle?.ToLowerInvariant());
     }
 }
+

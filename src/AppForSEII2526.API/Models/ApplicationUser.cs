@@ -19,6 +19,7 @@ public class ApplicationUser : IdentityUser {
     public int phoneNumber { get; set; }
 
     public List<Purchase> Purchases { get; set; } = new();
+    public List<Review> Reviews{ get; set; } = new();
 
     public ApplicationUser() {
     }
