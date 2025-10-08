@@ -13,7 +13,7 @@ public class ReviewItem
 
     public int Id { get; set; }
 
-    [Precision(2, 1)] //4.4, 3.5, 2.0...
+    
     [Range(1, 5)]
     public float Rating { get; set; }
 
