@@ -12,6 +12,13 @@
         [Required]
         [Range(0.01, 10000.00, ErrorMessage = "El precio debe estar entre 0.01 y 10000.00")]
         public double Price { get; set; }
+
+
+        public Rental Rent  { get; set; }
+
+
+        public Device Device { get; set; }
+
         public RentDevice() { }
         public RentDevice(int deviceID, int rentID, int quantity, double price)
         {

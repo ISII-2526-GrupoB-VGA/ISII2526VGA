@@ -23,8 +23,9 @@ namespace AppForSEII2526.API.Models
         [Required]
         [Range(0.01, 10000.00, ErrorMessage = "El precio debe estar entre 0.01 y 10000.00")]
         public double Price { get; set; }
-        
+        public IList<RentDevice> RentalDevices { get; set; }
 
+        public ApplicationUser ApplicationUser { get; set; }
 
         public Rental() { }
         public Rental(int id, string name, string surname, DateTime rentalDate, DateTime rentalDateFrom, DateTime rentalDateTo, double price, string deliverAddress)
