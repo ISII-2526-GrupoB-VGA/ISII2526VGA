@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+namespace AppForSEII2526.API.Models;
 
 public class Purchase
 {
@@ -15,7 +17,7 @@ public class Purchase
     public double TotalPrice { get; set; }
     [Required]
     public int TotalQuantity { get; set; }
-    public IList<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
+    public List<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
 
     public ApplicationUser ApplicationUser { get; set; }
 
