@@ -15,6 +15,9 @@ namespace AppForSEII2526.API.Models
         public DateTime RentalDateTo { get; set; }
         public string Surname { get; set; }
         public double Price { get; set; }
+        public IList<RentDevice> RentalDevices { get; set; }
+
+        public ApplicationUser ApplicationUser { get; set; }
 
         public Rental() { }
         public Rental(int id, string name, string surname, DateTime rentalDate, DateTime rentalDateFrom, DateTime rentalDateTo, double price, string deliverAddress)

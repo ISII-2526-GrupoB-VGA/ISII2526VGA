@@ -7,6 +7,12 @@
         public int Quantity { get; set; }
         public double Price { get; set; }
 
+
+        public Rental Rent  { get; set; }
+
+
+        public Device Device { get; set; }
+
         public RentDevice() { }
         public RentDevice(int deviceID, int rentID, int quantity, double price)
         {
