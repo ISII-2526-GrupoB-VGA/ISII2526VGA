@@ -2,27 +2,17 @@
 
 public class ReviewItem
 {
-
-
     public string Comment { get; set; }
-
-    public int DeviceId { get; set; } 
-    public Device Device { get; set; }
-
-    public int Id { get; set; }
-
-    [Precision(2, 1)] //4.4, 3.5, 2.0...
-    [Range(1, 5)]
+    public int DeviceId { get; set; }
+    public int ID { get; set; }
     public float Rating { get; set; }
-
-    public int ReviewId { get; set; }
-    public Review Review { get; set; }
+    public string ReviewId { get; set; }
 
     public ReviewItem()
     {
     }
 
-    public ReviewItem(string comment, int deviceId, float rating, int reviewId)
+    public ReviewItem(string comment, int deviceId, float rating, string reviewId)
     {
         DeviceId = deviceId;
         Comment = comment;
@@ -41,14 +31,14 @@ public class ReviewItem
         ReviewItem other = (ReviewItem)obj;
 
         return DeviceId == other.DeviceId
-            && Id == other.Id
+            && ID == other.ID
             && Rating.Equals(other.Rating)
             && string.Equals(Comment, other.Comment, StringComparison.Ordinal)
-            && ReviewId == other.ReviewId;
+            && string.Equals(ReviewId, other.ReviewId, StringComparison.Ordinal);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Comment, DeviceId, Id, Rating, ReviewId);
+        return HashCode.Combine(Comment, DeviceId, ID, Rating, ReviewId);
     }
 }
