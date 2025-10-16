@@ -27,8 +27,6 @@ public class Purchase
 
 	public Purchase(string customerUserName, string customerUserSurname, string deliveryAddress, int id, PaymentMethodType paymentMethod, DateTime purchaseDate, double totalPrice, int totalQuantity)
 	{
-		CustomerUserName = customerUserName;
-		CustomerUserSurname = customerUserSurname;
 		DeliveryAddress = deliveryAddress;
 		this.id = id;
 		PaymentMethod = paymentMethod;
