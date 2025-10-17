@@ -1,7 +1,7 @@
 ﻿using System;
 namespace AppForSEII2526.API.Models;
 
-//Aquí debería poner algo. No tengo muy claro el qué. Puede que sea en ReviewItem
+
 public class Review
 {
 
