@@ -6,7 +6,7 @@ public class Review
 {
 
     [System.ComponentModel.DataAnnotations.Required]
-    public int CustomerCount { get; set; }
+    public string? CustomerCountry { get; set; } //"?" indica que puede seer nulo  
     [System.ComponentModel.DataAnnotations.Required]
     public int CustomerId { get; set; }
     public DateTime DateOfReview { get; set; }
@@ -30,9 +30,9 @@ public class Review
     {
     }
 
-    public Review(int customerCount, int customerId, DateTime dateOfReview, double overallRating, int reviewId, string reviewTitle)
+    public Review(string CustomerCountry, int customerId, DateTime dateOfReview, double overallRating, int reviewId, string reviewTitle)
     {
-        CustomerCount = customerCount;
+        CustomerCountry = CustomerCountry;
         CustomerId = customerId;
         DateOfReview = dateOfReview;
         OverallRating = overallRating;
@@ -49,7 +49,7 @@ public class Review
 
         Review other = (Review)obj;
 
-        return CustomerCount == other.CustomerCount &&
+        return CustomerCountry == other.CustomerCountry &&
                CustomerId == other.CustomerId &&
                DateOfReview.Equals(other.DateOfReview) &&
                OverallRating.Equals(other.OverallRating) &&
@@ -59,7 +59,7 @@ public class Review
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(CustomerCount,
+        return HashCode.Combine(CustomerCountry,
                                 CustomerId,
                                 DateOfReview,
                                 OverallRating,
