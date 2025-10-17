@@ -11,7 +11,7 @@ public class ReviewItem
     public int DeviceId { get; set; }
     public Device Device { get; set; }
 
-    //public int Id { get; set; }  //Quitar esta. Mirar línea 46  
+    //public int Id { get; set; }  //Quitar esta. Mirar línea 46     
 
     
     [Range(1, 5, ErrorMessage = "La valoración debe estar entre 1 y 5")]
