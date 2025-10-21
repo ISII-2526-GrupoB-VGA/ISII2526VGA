@@ -16,7 +16,7 @@
       </Path>
     </AssociationLine>
     <TypeIdentifier>
-      <HashCode>EAADCAAAAQAAAAAQhAAAAEUABAAAAIAAAAAAAAAAAAA=</HashCode>
+      <HashCode>EAADCAAAAQAAAAAQhAAAAEEAAAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\Rental.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -63,7 +63,7 @@
   <Class Name="AppForSEII2526.API.Models.ApplicationUser">
     <Position X="12" Y="1" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAwAAEAAAAAAAAAgAAAAAAAAAEAAAAACAAAAAAAAAAg=</HashCode>
+      <HashCode>AAwAAEAAAAAAAAAAAAAAIAAAAAAAAAACAAAAAAEAAAg=</HashCode>
       <FileName>Models\ApplicationUser.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
