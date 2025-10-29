@@ -178,8 +178,6 @@ namespace AppForSEII2526.API.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerUserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CustomerUserSurname = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DeliveryAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PaymentMethod = table.Column<int>(type: "int", nullable: false),
                     PurchaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -205,12 +203,10 @@ namespace AppForSEII2526.API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DeliverAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PaymentMethod = table.Column<int>(type: "int", nullable: false),
                     RentalDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RentalDateFrom = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RentalDateTo = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Surname = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -231,7 +227,7 @@ namespace AppForSEII2526.API.Migrations
                 {
                     ReviewId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerCount = table.Column<int>(type: "int", nullable: false),
+                    CustomerCountry = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     DateOfReview = table.Column<DateTime>(type: "datetime2", nullable: false),
                     OverallRating = table.Column<double>(type: "float", nullable: false),
@@ -282,7 +278,7 @@ namespace AppForSEII2526.API.Migrations
                 {
                     DeviceId = table.Column<int>(type: "int", nullable: false),
                     purchaseId = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Price = table.Column<double>(type: "float(10)", precision: 10, scale: 2, nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
                 },
@@ -333,16 +329,14 @@ namespace AppForSEII2526.API.Migrations
                 name: "ReviewItems",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DeviceId = table.Column<int>(type: "int", nullable: false),
-                    Rating = table.Column<float>(type: "real", nullable: false),
-                    ReviewId = table.Column<int>(type: "int", nullable: false)
+                    ReviewId = table.Column<int>(type: "int", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rating = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReviewItems", x => x.Id);
+                    table.PrimaryKey("PK_ReviewItems", x => new { x.DeviceId, x.ReviewId });
                     table.ForeignKey(
                         name: "FK_ReviewItems_Devices_DeviceId",
                         column: x => x.DeviceId,
@@ -420,11 +414,6 @@ namespace AppForSEII2526.API.Migrations
                 name: "IX_RentedDevices_RentID",
                 table: "RentedDevices",
                 column: "RentID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ReviewItems_DeviceId",
-                table: "ReviewItems",
-                column: "DeviceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ReviewItems_ReviewId",
