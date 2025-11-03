@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AppForSEII2526.API.Models
 {
-    
+
     public class ApplicationUser : IdentityUser
     {
         [Display(Name = "Name")] //¿Quitar?
@@ -17,10 +17,11 @@ namespace AppForSEII2526.API.Models
         //public string userName { get; set; } = string.Empty;    //Esto lo puse ahora   
         //public string userSurname { get; set; } = string.Empty; //Esto lo puse ahora
 
+
         [Required]
         public string Address { get; set; } = string.Empty;
 
-       
+
 
         public List<Purchase> Purchases { get; set; } = new();
         public List<Review> Reviews { get; set; } = new();
@@ -39,7 +40,7 @@ namespace AppForSEII2526.API.Models
             LastName = lastName;
             Address = address;
 
-            
+
             Email = email;
             PhoneNumber = phoneNumber;
         }
