@@ -26,7 +26,12 @@ public class Model
 		Id = Id;
 	}
 
-	public override bool Equals(object? obj)
+    public Model(int id, string nameModel, List<Device> devices) : this(id, nameModel)
+    {
+        Devices = devices;
+    }
+
+    public override bool Equals(object? obj)
 	{
 		if (obj == null || GetType() != obj.GetType())
 			return false;

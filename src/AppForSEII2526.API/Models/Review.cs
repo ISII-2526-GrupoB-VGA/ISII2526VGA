@@ -6,7 +6,7 @@ public class Review
 {
 
     [System.ComponentModel.DataAnnotations.Required]
-    public string? CustomerCountry { get; set; } //"?" indica que puede seer nulo  
+    public string? CustomerCountry { get; set; } //"?" indica que puede seer nulo   
     [System.ComponentModel.DataAnnotations.Required]
     public int CustomerId { get; set; }
     public DateTime DateOfReview { get; set; }

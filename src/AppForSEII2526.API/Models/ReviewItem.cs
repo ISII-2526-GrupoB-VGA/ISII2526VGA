@@ -1,7 +1,7 @@
 ﻿using System;
 namespace AppForSEII2526.API.Models;
 
-[PrimaryKey(nameof(DeviceId), nameof(ReviewId))]
+[PrimaryKey(nameof(DeviceId), nameof(ReviewId))]    
 public class ReviewItem
 {
 
@@ -13,11 +13,11 @@ public class ReviewItem
 
     //public int Id { get; set; }  //Quitar esta. Mirar línea 46     
 
-
+    
     [Range(1, 5, ErrorMessage = "La valoración debe estar entre 1 y 5")]
     public float Rating { get; set; }
 
-    public int ReviewId { get; set; }
+    public int ReviewId { get; set; } 
     public Review Review { get; set; }
 
     public ReviewItem()
