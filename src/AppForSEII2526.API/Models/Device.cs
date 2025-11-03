@@ -4,6 +4,8 @@ namespace AppForSEII2526.API.Models;
 
 public class Device
 {
+    internal object priceForRenting;
+
     [Required]
     public string Brand { get; set; }
 	public string Color { get; set; }
@@ -27,6 +29,7 @@ public class Device
 	public Model Model { get; set; }
 
 	public List<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
+    //public string Genre { get; internal set; }
 
     public Device()
 	{

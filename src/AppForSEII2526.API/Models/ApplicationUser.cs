@@ -14,8 +14,8 @@ namespace AppForSEII2526.API.Models
         [Display(Name = "Last Name")] 
         public string? LastName { get; set; } 
 
-        public string userName { get; set; } = string.Empty;    //Esto lo puse ahora   
-        public string userSurname { get; set; } = string.Empty; //Esto lo puse ahora
+        //public string userName { get; set; } = string.Empty;    //Esto lo puse ahora   
+        //public string userSurname { get; set; } = string.Empty; //Esto lo puse ahora
 
         [Required]
         public string Address { get; set; } = string.Empty;
