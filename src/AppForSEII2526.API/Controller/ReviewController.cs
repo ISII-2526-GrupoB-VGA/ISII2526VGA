@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 namespace AppForSEII2526.API.Controller 
                                         //Es del DTO de GetSelect (Paso 2)
 {
+
+
     [Route("api/[controller]")]
     [ApiController]
     public class ReviewController : ControllerBase
@@ -22,61 +24,197 @@ namespace AppForSEII2526.API.Controller
             _context = context;
             _logger = logger;
         }
-
         // POST: api/Review
-        // Crea una reseña (paso 5). El servidor asigna fecha/id; el DTO de creación no debe pedirlos.
+        // Crea una reseña (paso 6 del caso de uso: cliente rellena y guarda)
+
+
         [HttpPost]
-        public async Task<IActionResult> CreateReview([FromBody] ReviewForCreateDTO dto)
+        [ProducesResponseType(typeof(ReviewDetailDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
+        public async Task<ActionResult> CreateReview(ReviewForCreateDTO dto)
         {
-            if (dto == null) return BadRequest();
+            // --- VALIDACIONES ---
+            if (string.IsNullOrWhiteSpace(dto.CustomerCountry))
+                ModelState.AddModelError(nameof(dto.CustomerCountry),
+                    "Error. El país es obligatorio (flujo alternativo 3)");
 
-            // Validaciones mínimas
-            if (string.IsNullOrWhiteSpace(dto.CustomerCountry) || string.IsNullOrWhiteSpace(dto.ReviewTitle) || dto.ReviewItems == null || !dto.ReviewItems.Any())
-                return BadRequest("Faltan datos obligatorios (país, título o items).");
+            if (string.IsNullOrWhiteSpace(dto.ReviewTitle))
+                ModelState.AddModelError(nameof(dto.ReviewTitle),
+                    "Error. El título de la reseña es obligatorio (flujo alternativo 3)");
 
-            // Mapear a entidad (ajusta según tu modelo)
-            var review = new Review
+            if (dto.ReviewItems == null || !dto.ReviewItems.Any())
+                ModelState.AddModelError(nameof(dto.ReviewItems),
+                    "Error. Debe incluir al menos un dispositivo para reseñar (flujo alternativo 2)");
+
+            foreach (var item in dto.ReviewItems ?? Enumerable.Empty<ReviewItemForCreateDTO>())
             {
-                CustomerCountry = dto.CustomerCountry,
-                // CustomerId: normalmente se obtiene del contexto de autenticación; aquí lo tomamos si viene en el DTO
-                CustomerId = dto.CustomerId,
-                DateOfReview = DateTime.UtcNow,
-                OverallRating = dto.OverallRating,
-                ReviewTitle = dto.ReviewTitle,
-                ReviewItems = dto.ReviewItems.Select(i => new ReviewItem
+                if (item.Rating < 1 || item.Rating > 5)
+                    ModelState.AddModelError(nameof(dto.ReviewItems),
+                        $"Error! La valoración debe estar entre 1 y 5 (flujo alternativo 5). Dispositivo {item.DeviceId} tiene rating {item.Rating}");
+
+                if (string.IsNullOrWhiteSpace(item.Comment))
+                    ModelState.AddModelError(nameof(dto.ReviewItems),
+                        $"Error! El comentario es obligatorio para cada dispositivo (flujo alternativo 3). Dispositivo {item.DeviceId} no tiene comentario");
+            }
+
+            //var user = await _context.Users.FirstOrDefaultAsync();
+            //if (user == null)
+            //    ModelState.AddModelError("ApplicationUser",
+            //        "Error! No hay usuarios en el sistema. La precondición requiere un usuario conectado como Cliente");
+
+
+            if (ModelState.ErrorCount > 0)
+                return BadRequest(new ValidationProblemDetails(ModelState));
+
+            // --- VERIFICAR DISPOSITIVOS ---
+            var deviceIds = dto.ReviewItems.Select(i => i.DeviceId).Distinct().ToList();
+            var devices = await _context.Devices
+                .Include(d => d.Model)
+                .Where(d => deviceIds.Contains(d.Id))
+                .Select(d => new
                 {
-                    DeviceId = i.DeviceId,
-                    Comment = i.Comment,
-                    Rating = i.Rating
-                }).ToList()
-            };
+                    d.Id,
+                    d.Name,
+                    d.Brand,
+                    d.Color,
+                    d.Year,
+                    ModelName = d.Model.NameModel
+                })
+                .ToListAsync();
 
-            _context.Reviews.Add(review);
-            await _context.SaveChangesAsync();
 
-            // Devuelve la ubicación del nuevo recurso. El id puede ser review.ReviewId (ajusta si tu PK difiere)
-            return CreatedAtAction(nameof(GetReview), new { id = review.ReviewId }, null);
+            // --- CREAR REVIEW ---
+            //var review = new Review
+            //{
+            //    CustomerCountry = dto.CustomerCountry,
+            //    CustomerId = 1, // TODO: sustituir por el ID del cliente real
+            //    DateOfReview = DateTime.UtcNow,
+            //    OverallRating = dto.ReviewItems.Average(i => i.Rating),
+            //    ReviewTitle = dto.ReviewTitle,
+            //    ApplicationUserId = user.Id
+            //};
+
+
+
+            //Buscar usuario con nombre
+            //string userId = null; //Esto lo he añadido para q busque el id del usuario a partir del nombre
+            //foreach (var userName in _context.Users)
+            //{
+            //    if (dto.CustomerName.Equals(userName))
+            //    {
+            //        userId = userName.Id;
+            //        break;
+            //    }
+            //}
+
+            //if (string.IsNullOrEmpty(userId))//Añadido 
+            //    return BadRequest("Error: no se pudo identificar al usuario autenticado. Debe estar logueado.");//Añadido
+
+            //buscar usuario. Estas 3 lineas las añadí
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == dto.CustomerName);
+            if (user == null)
+                return BadRequest($"Error: no se encontró ningún usuario con el nombre '{dto.CustomerName}'. Debe estar registrado en el sistema.");
+
+            string userId = user.Id;
+
+
+            Review review = new Review(dto.CustomerCountry, 1,userId, DateTime.Now, dto.ReviewItems.Average(i => i.Rating),dto.ReviewTitle);
+
+            foreach (var item in dto.ReviewItems)
+            {
+                var dev = devices.FirstOrDefault(d => d.Id == item.DeviceId);
+                if (!devices.Any(d => d.Id == item.DeviceId))
+                {
+                    ModelState.AddModelError(nameof(dto.ReviewItems),
+                        $"Error! El dispositivo con ID {item.DeviceId} no existe o no está disponible");
+                }
+                else
+                {
+                    review.ReviewItems.Add(new ReviewItem(item.Comment, dev.Id, item.Rating, review));
+                   
+                }
+                    
+
+            }
+
+            
+            if (ModelState.ErrorCount > 0)
+                return BadRequest(new ValidationProblemDetails(ModelState));
+
+            
+
+            _context.Add(review);
+
+            //foreach (var item in dto.ReviewItems)// esta frma de 9ntru8r esta mal            //{
+            //    _context.ReviewItems.Add(new ReviewItem
+            //    {
+            //        DeviceId = item.DeviceId,
+            //        Comment = item.Comment,
+            //        Rating = item.Rating,
+            //        Review = review
+            //    });
+            //}
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Reseña {review.ReviewId} creada exitosamente por {dto.CustomerCountry}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al guardar la reseña en la base de datos");
+                return Conflict($"Error! Hubo un problema al guardar la reseña. Detalles: {ex.Message}");
+            }
+
+            // --- CONSTRUIR DTO DE RESPUESTA ---
+            var reviewDetail = new ReviewDetailDTO(
+                id: review.ReviewId,
+                dateOfReview: review.DateOfReview,
+                customerCountry: review.CustomerCountry,
+                reviewTitle: review.ReviewTitle,
+                overallRating: review.OverallRating,
+                reviewItems: review.ReviewItems.Select(ri =>
+                {
+                    var device = devices.First(d => d.Id == ri.DeviceId);
+                    return new ReviewItemDetailDTO(
+                        deviceId: ri.DeviceId,
+                        deviceName: device.Name,
+                        deviceModel: device.ModelName,
+                        deviceYear: device.Year,
+                        comment: ri.Comment,
+                        rating: ri.Rating
+                    );
+                }).ToList(),
+                customerName: user.UserName
+            );
+
+            return CreatedAtAction(nameof(GetReview), new { id = review.ReviewId }, reviewDetail);
         }
 
+
+
+
         // GET: api/Review/{id}
-        // Devuelve el detalle de la reseña (paso 7). Mapea a DTO ReviewDetail si lo tienes.
+        // Devuelve el detalle de la reseña (paso 7 del caso de uso)
         [HttpGet("{id:int}")]
         public async Task<ActionResult<object>> GetReview(int id)
         {
             var review = await _context.Reviews
                 .Include(r => r.ReviewItems)
                     .ThenInclude(ri => ri.Device)
+                        .ThenInclude(d => d.Model)
                 .FirstOrDefaultAsync(r => r.ReviewId == id);
 
             if (review == null) return NotFound();
 
-            // Mapeo ligero (puedes reemplazar por ReviewDetail DTO)
+            // Paso 7: datos que se muestran (nombre y país del cliente, título, fecha, y por cada dispositivo: nombre, modelo, año, puntuación, comentario)
             var result = new
             {
                 Id = review.ReviewId,
                 DateOfReview = review.DateOfReview,
                 CustomerCountry = review.CustomerCountry,
-                //CustomerName = review.ApplicationUser != null ? $"{review.ApplicationUser.Name} {review.ApplicationUser.Surname}" : null,
+                CustomerName = "Cliente Test", // TODO: obtener de ApplicationUser si está relacionado
                 ReviewTitle = review.ReviewTitle,
                 OverallRating = review.OverallRating,
                 Items = review.ReviewItems.Select(ri => new

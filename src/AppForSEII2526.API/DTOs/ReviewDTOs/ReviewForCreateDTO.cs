@@ -8,6 +8,13 @@ namespace AppForSEII2526.API.DTOs.ReviewDTOs
                                            // DTO usado en el POST (Crear reseña), Solo contiene la
                                            // informacion que cliente introduce en paso 5
     {
+
+
+        public ReviewForCreateDTO()
+        {
+            ReviewItems = new List<ReviewItemForCreateDTO>();
+        }
+        /*
         public ReviewForCreateDTO(string customerCountry, int customerId, DateTime dateOfReview, double overallRating, int reviewId, string reviewTitle, string? customerName = null, IList<ReviewItemForCreateDTO>? reviewItems = null)
         {
             CustomerCountry = customerCountry ?? throw new ArgumentNullException(nameof(customerCountry));
@@ -26,36 +33,31 @@ namespace AppForSEII2526.API.DTOs.ReviewDTOs
             DateOfReview = DateTime.UtcNow;
             ReviewItems = new List<ReviewItemForCreateDTO>();
         }
-
+        */
         // --- Cabecera de la reseña ---
-        [Required(AllowEmptyStrings = false)]
+        // País desde donde se hace la reseña (obligatorio según flujo)
+        [Required(AllowEmptyStrings = false, ErrorMessage = "El país es obligatorio")]
         public string CustomerCountry { get; set; }
 
-        // Opcional según el flujo
+        // Nombre del cliente (opcional según flujo paso 5)
         public string? CustomerName { get; set; }
 
-        [Required]
-        public int CustomerId { get; set; }
 
-        [Required]
-        public DateTime DateOfReview { get; set; }
-
-        // Puede calcularse o proporcionarse
-        public double OverallRating { get; set; }
-
-        [Required]
-        public int ReviewId { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
+        // Título de la reseña (obligatorio según flujo)
+        [Required(AllowEmptyStrings = false, ErrorMessage = "El título de la reseña es obligatorio")]
         public string ReviewTitle { get; set; }
 
         // Lista de ítems: por cada dispositivo seleccionado en el carrito
+        [Required]
+        [MinLength(1, ErrorMessage = "Debe reseñar al menos un dispositivo")]
         public IList<ReviewItemForCreateDTO> ReviewItems { get; set; }
     }
 
     // DTO para cada dispositivo reseñado (comentario + puntuación obligatoria)
     public class ReviewItemForCreateDTO
     {
+
+        /*
         public ReviewItemForCreateDTO(int deviceId, string name, string model, int year, string comment, float rating)
         {
             DeviceId = deviceId;
@@ -65,24 +67,24 @@ namespace AppForSEII2526.API.DTOs.ReviewDTOs
             Comment = comment ?? throw new ArgumentNullException(nameof(comment));
             Rating = rating;
         }
+        */
 
         public ReviewItemForCreateDTO() { }
 
+        // ID del dispositivo reseñado (obligatorio)
         [Required]
         public int DeviceId { get; set; }
 
-        [Required(AllowEmptyStrings = false)]
-        public string Name { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        public string Model { get; set; }
-
-        public int Year { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
+        // Comentario por dispositivo (obligatorio según flujo paso 5)
+        [Required(AllowEmptyStrings = false, ErrorMessage = "El comentario es obligatorio")]
         public string Comment { get; set; }
 
-        [Range(1, 5)]
+        // Puntuación 1..5 (obligatorio según flujo paso 5 y flujo alternativo 5)
+        [Range(1, 5, ErrorMessage = "La puntuación debe estar entre 1 y 5")]
         public float Rating { get; set; }
+
+        // NOTAS:
+        // - Name, Model, Year NO se piden en el POST (ya están en la BD asociados al DeviceId)
+        // - Solo se usan en el GET (paso 7) para mostrar info del dispositivo
     }
 }

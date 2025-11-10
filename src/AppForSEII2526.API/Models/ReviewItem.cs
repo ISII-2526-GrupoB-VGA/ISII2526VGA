@@ -24,12 +24,12 @@ public class ReviewItem
     {
     }
 
-    public ReviewItem(string comment, int deviceId, float rating, int reviewId)
+    public ReviewItem(string comment, int deviceId, float rating, Review review)
     {
         DeviceId = deviceId;
         Comment = comment;
         Rating = rating;
-        ReviewId = reviewId;
+        Review = review;
     }
 
     public override bool Equals(object obj)
