@@ -39,8 +39,6 @@ namespace AppForSEII2526.API.Models
             FirstName = firstName;
             LastName = lastName;
             Address = address;
-
-
             Email = email;
             PhoneNumber = phoneNumber;
         }

@@ -17,6 +17,10 @@ public class Review
     [System.ComponentModel.DataAnnotations.Required]
     public string ReviewTitle { get; set; }
     public IList<ReviewItem> ReviewItems { get; set; } = new List<ReviewItem>();
+    //No se si debo quitar eso, o se me ha liado la base de datos o yks
+
+    [Required]
+    public string ApplicationUserId { get; set; }
 
     public ApplicationUser ApplicationUser
     {
@@ -30,13 +34,13 @@ public class Review
     {
     }
 
-    public Review(string CustomerCountry, int customerId, DateTime dateOfReview, double overallRating, int reviewId, string reviewTitle)
+    public Review(string customerCountry, int customerId,string applicationUserId, DateTime dateOfReview, double overallRating, string reviewTitle)
     {
-        CustomerCountry = CustomerCountry;
+        CustomerCountry = customerCountry;
         CustomerId = customerId;
+        ApplicationUserId = /*applicationUserId*/"1";    // Falta cambiar el id para que coja de verdad el del usuario
         DateOfReview = dateOfReview;
         OverallRating = overallRating;
-        ReviewId = reviewId;
         ReviewTitle = reviewTitle;
     }
 

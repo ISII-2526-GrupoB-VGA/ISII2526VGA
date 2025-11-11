@@ -40,7 +40,7 @@ namespace AppForSEII2526.API.Controller
         */
 
 
-        [HttpGet]
+        [HttpGet] //Este get me da todos los dispositivos 
         [Route("[action]")]
         [ProducesResponseType(typeof(List<ReviewForCreateDTO>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult> GetDevicesForReview()

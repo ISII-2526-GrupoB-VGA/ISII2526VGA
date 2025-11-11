@@ -26,7 +26,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasKey(rd => new { rd.DeviceID, rd.RentID });
         builder.Entity<PurchaseItem>()
             .HasKey(pi => new { pi.DeviceId, pi.purchaseId });
-       
+
+        // AÑADE ESTO para asegurar que ReviewId se genera automáticamente:
+        builder.Entity<Review>()
+            .Property(r => r.ReviewId)
+            .ValueGeneratedOnAdd();
+
     }
 }
 
