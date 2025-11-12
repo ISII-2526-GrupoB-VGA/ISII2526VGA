@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 
 using AppForSEII2526.API.Data;
 using AppForSEII2526.API.Models;
+using AppForSEII2526.API.Logging;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,6 +83,10 @@ builder.Services.AddSwaggerGen(options =>
         apiDescription.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null);
 });
 
+
+// ?? registra tu proveedor leyendo la sección "RabbitMQ" del appsettings.json
+builder.Logging.AddRabbitMQ(builder.Configuration.GetSection("RabbitMQ"));
+
 var app = builder.Build();
 
 // Mapear endpoints de Identity (solo si quieres exponer /register, /login, etc.)
@@ -95,6 +101,10 @@ using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+        var cnn = db.Database.GetDbConnection();
+        Console.WriteLine($"[EF] Provider: {db.Database.ProviderName}");
+        Console.WriteLine($"[EF] ConnectionString: {cnn.ConnectionString}");
+        Console.WriteLine($"[CFG] DBConnection2Use: {connection2Database ?? "(null)"}");
         // Crear o migrar BD
         if (connection2Database == "SQLite")
             db.Database.EnsureCreated();
