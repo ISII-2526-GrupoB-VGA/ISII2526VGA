@@ -14,7 +14,8 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5254",
+      //"applicationUrl": "http://localhost:5254",
+      "applicationUrl": "http://localhost:5260", //Este puerto lo he puesto para evitar conflicto con https, Por esto encenderá con F5
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -24,7 +25,8 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7067;http://localhost:5254",
+      "applicationUrl": "https://localhost:7067;http://localhost:5254", //he puesto el 5260 para q cuadre arriba.
+                                                                        //Abtes estaba 5254
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

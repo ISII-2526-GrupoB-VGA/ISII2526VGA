@@ -8,8 +8,13 @@ using Microsoft.AspNetCore.Identity;
 
 using AppForSEII2526.API.Data;
 using AppForSEII2526.API.Models;
+using TodoApi.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//RabbitMQ coincide con el nombre del bloque de propiedades en appsettings.json
+builder.Logging.AddRabbitMQ(builder.Configuration.GetSection("RabbitMQ"));
+
 
 // ---------------- Services ----------------
 builder.Services.AddControllers()
@@ -127,3 +132,6 @@ app.Run();
 
 // Expose Program for integration tests
 public partial class Program { }
+
+
+
