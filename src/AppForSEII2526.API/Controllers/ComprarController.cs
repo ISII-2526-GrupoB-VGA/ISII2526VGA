@@ -18,7 +18,39 @@ namespace AppForSEII2526.API.Controllers
         {
             _context = context;
             _logger = logger;
+ 
         }
+
+        [HttpGet("diag/users")]
+        public async Task<object> ListUsers()
+        {
+            var users = await _context.ApplicationUsers
+                .OrderBy(u => u.UserName)
+                .Select(u => new { u.Id, u.UserName, u.Email, u.FirstName, u.LastName })
+                .ToListAsync();
+
+            return new { Count = users.Count, Users = users };
+        }
+
+
+
+        // GET api/purchases/diag/db
+        [HttpGet("diag/db")]
+        public async Task<object> Diag()
+        {
+            return new
+            {
+                Provider = _context.Database.ProviderName,
+                Cnn = _context.Database.GetDbConnection().ConnectionString,
+                PurchasesCount = await _context.Purchases.CountAsync(),
+                PurchaseIds = await _context.Purchases
+                                           .OrderBy(p => p.id)
+                                           .Select(p => p.id)
+                                           .ToListAsync()
+            };
+        }
+
+
 
         // ---------- GET ----------
         [HttpGet]
