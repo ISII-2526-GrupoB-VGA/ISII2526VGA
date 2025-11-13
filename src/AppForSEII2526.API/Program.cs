@@ -20,7 +20,7 @@ builder.Services.AddControllers()
     });
 
 // Selección de base de datos por variable de entorno DBConnection2Use
-string? connection2Database = Environment.GetEnvironmentVariable("DBConnection2Use");
+string? connection2Database = Environment.GetEnvironmentVariable("DBConnection2Use"); //Esto creo que se debe quedar así
 
 switch (connection2Database)
 {
@@ -97,9 +97,9 @@ using (var scope = app.Services.CreateScope())
 
         // Crear o migrar BD
         if (connection2Database == "SQLite")
-            db.Database.EnsureCreated();
+            db.Database.EnsureCreated();    //Esto se queda tal cual. Creo
         else
-            db.Database.Migrate();
+            db.Database.Migrate();          //Esto se queda tal cual. Creo 
 
         // Seed (roles, usuarios, modelos/dispositivos y compra opcional)
         SeedData.Initialize(db, scope.ServiceProvider, logger);
