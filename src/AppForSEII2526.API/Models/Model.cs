@@ -10,21 +10,22 @@ public class Model
 
     public Model() { }
 
-	public Model(int id, string NameModel)
-	{
-		Id = id; 
-		NameModel = NameModel;
-	}
+    public Model(int id, string nameModel)
+    {
+        Id = id;
+        NameModel = nameModel;
+    }
 
-	public Model(string NameModel)
-	{
-		NameModel = NameModel;
-	}
+    public Model(string nameModel)
+    {
+        NameModel = nameModel;
+    }
 
-	public Model(int Id)
-	{
-		Id = Id;
-	}
+    public Model(int id)
+    {
+        Id = id;
+    }
+
 
     public Model(int id, string nameModel, List<Device> devices) : this(id, nameModel)
     {
