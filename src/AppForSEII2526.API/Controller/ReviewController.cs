@@ -1,11 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AppForSEII2526.API.DTOs.ReviewDTOs;
+using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AppForSEII2526.API.DTOs.ReviewDTOs;
-using AppForSEII2526.API.Models;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AppForSEII2526.API.Controller 
                                         //Es del DTO de GetSelect (Paso 2)
@@ -198,37 +200,68 @@ namespace AppForSEII2526.API.Controller
         // GET: api/Review/{id}
         // Devuelve el detalle de la reseña (paso 7 del caso de uso)
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<object>> GetReview(int id)
+        [Route("[action]")]
+        [ProducesResponseType(typeof(ReviewDetailDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> GetReview(int id)
         {
-            var review = await _context.Reviews
-                .Include(r => r.ReviewItems)
-                    .ThenInclude(ri => ri.Device)
-                        .ThenInclude(d => d.Model)
-                .FirstOrDefaultAsync(r => r.ReviewId == id);
+            //var review = await _context.Reviews
+            //    .Include(r => r.ReviewItems)
+            //        .ThenInclude(ri => ri.Device)
+            //            .ThenInclude(d => d.Model)
+            //    .FirstOrDefaultAsync(r => r.ReviewId == id);
 
-            if (review == null) return NotFound();
+            //if (review == null) return NotFound();
 
             // Paso 7: datos que se muestran (nombre y país del cliente, título, fecha, y por cada dispositivo: nombre, modelo, año, puntuación, comentario)
-            var result = new
-            {
-                Id = review.ReviewId,
-                DateOfReview = review.DateOfReview,
-                CustomerCountry = review.CustomerCountry,
-                CustomerName = "Cliente Test", // TODO: obtener de ApplicationUser si está relacionado
-                ReviewTitle = review.ReviewTitle,
-                OverallRating = review.OverallRating,
-                Items = review.ReviewItems.Select(ri => new
-                {
-                    ri.DeviceId,
-                    Name = ri.Device?.Name,
-                    Model = ri.Device?.Model?.NameModel,
-                    Year = ri.Device?.Year,
-                    ri.Comment,
-                    ri.Rating
-                })
-            };
+            //var result = new
+            //{
+            //    Id = review.ReviewId,
+            //    DateOfReview = review.DateOfReview,
+            //    CustomerCountry = review.CustomerCountry,
+            //    CustomerName = "Cliente Test", // TODO: obtener de ApplicationUser si está relacionado
+            //    ReviewTitle = review.ReviewTitle,
+            //    OverallRating = review.OverallRating,
+            //    Items = review.ReviewItems.Select(ri => new
+            //    {
+            //        ri.DeviceId,
+            //        Name = ri.Device?.Name,
+            //        Model = ri.Device?.Model?.NameModel,
+            //        Year = ri.Device?.Year,
+            //        ri.Comment,
+            //        ri.Rating
+            //    })
+            //};
 
-            return Ok(result);
+            ReviewDetailDTO? review = await _context.Reviews
+                .Where(r => r.ReviewId == id)
+
+                .Include(r => r.ReviewItems) //join table RentalItems
+                    .ThenInclude(ri => ri.Device) //then join table Movies
+                        .ThenInclude(device => device.Model) //then join table Genre
+
+                .Include(r => r.ApplicationUser) //join table ApplicationUser
+
+                .Select(r => new ReviewDetailDTO(r.ReviewId, r.DateOfReview, r.CustomerCountry,
+                        r.ReviewTitle, r.OverallRating,
+                        r.ReviewItems
+                            .Select(ri => new ReviewItemDetailDTO(ri.DeviceId, ri.Device.Name, ri.Device.Model.NameModel, 
+                            ri.Device.Year, ri.Comment,ri.Rating)).ToList(), r.ApplicationUser.FirstName)).FirstOrDefaultAsync();
+
+
+            return Ok(review);
         }
     }
 }
+
+
+//public ReviewItemDetailDTO(int deviceId, string deviceName, string deviceModel, int deviceYear, string comment, float rating)
+//{
+//    DeviceId = deviceId;
+//    DeviceName = deviceName;
+//    DeviceModel = deviceModel;
+//    DeviceYear = deviceYear;
+//    Comment = comment;
+//    Rating = rating;
+//}
+

@@ -16,6 +16,8 @@
             Model = model ?? throw new ArgumentNullException(nameof(model));
         }
 
+        
+
         public int Id { get; set; }
 
         [StringLength(50, ErrorMessage = "Name must have a maximum length of 50 characters")]

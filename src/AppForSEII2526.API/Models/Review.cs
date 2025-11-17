@@ -22,13 +22,7 @@ public class Review
     [Required]
     public string ApplicationUserId { get; set; }
 
-    public ApplicationUser ApplicationUser
-    {
-        get => default;
-        set
-        {
-        }
-    }
+    public ApplicationUser ApplicationUser { get; set; }
 
     public Review()
     {
@@ -38,7 +32,7 @@ public class Review
     {
         CustomerCountry = customerCountry;
         CustomerId = customerId;
-        ApplicationUserId = /*applicationUserId*/"1";    // Falta cambiar el id para que coja de verdad el del usuario
+        ApplicationUserId = applicationUserId /*"1"*/;    // Falta cambiar el id para que coja de verdad el del usuario
         DateOfReview = dateOfReview;
         OverallRating = overallRating;
         ReviewTitle = reviewTitle;
