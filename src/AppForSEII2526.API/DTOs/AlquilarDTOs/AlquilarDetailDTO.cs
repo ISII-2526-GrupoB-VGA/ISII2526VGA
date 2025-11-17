@@ -4,7 +4,7 @@
     {
         public AlquilarDetailDTO(int id, DateTime purchaseDate, string customerFullName,
                                  string deliveryAddress, double totalPrice, int totalQuantity,
-                                 List<PurchaseItemDTO> items)
+                                 List<AlquilarItemDTO> items)
         {
             Id = id;
             PurchaseDate = purchaseDate;
