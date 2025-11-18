@@ -2,19 +2,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AppForSEII2526.API.Data;
-using AppForSEII2526.API.DTOs.PurchaseDTOs; // <- namespace del DTO
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using AppForSEII2526.API.DTOs.DeviceDTOs;
 
-namespace AppForSEII2526.API.Controllers
+namespace AppForSEII2526.API.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DevicesController : ControllerBase
+    public class AlquilarControler : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<DevicesController> _logger;
+        private readonly ILogger<AlquilarControler> _logger;
 
-        public DevicesController(ApplicationDbContext context, ILogger<DevicesController> logger)
+        public AlquilarControler(ApplicationDbContext context, ILogger<AlquilarControler> logger)
         {
             _context = context;
             _logger = logger;
@@ -24,17 +24,17 @@ namespace AppForSEII2526.API.Controllers
         [Route("[action]")]
         [ProducesResponseType(typeof(List<DispositivoComprarDTO>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ModelError), (int)HttpStatusCode.BadRequest)]
-        
+
         public async Task<ActionResult> GetDevicesForBuying()
         {
             var devices = await _context.Devices
                 .Select(d => new DispositivoComprarDTO(
-                    d.Id,                 
-                    d.Name,               
-                    d.Brand,              
-                    d.Model.NameModel,    
-                    d.Color,              
-                    d.priceForPurchase    
+                    d.Id,
+                    d.Name,
+                    d.Brand,
+                    d.Model.NameModel,
+                    d.Color,
+                    d.priceForPurchase
                 ))
                 .ToListAsync();
 

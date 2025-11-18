@@ -5,7 +5,7 @@ using AppForSEII2526.API.Data;
 using AppForSEII2526.API.DTOs.PurchaseDTOs;
 using AppForSEII2526.API.Models;
 
-namespace AppForSEII2526.API.Controllers
+namespace AppForSEII2526.API.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -29,7 +29,7 @@ namespace AppForSEII2526.API.Controllers
                 .Select(u => new { u.Id, u.UserName, u.Email, u.FirstName, u.LastName })
                 .ToListAsync();
 
-            return new { Count = users.Count, Users = users };
+            return new { users.Count, Users = users };
         }
 
 
@@ -228,7 +228,7 @@ namespace AppForSEII2526.API.Controllers
                 )).ToList()
             );
 
-            return CreatedAtAction(nameof(GetPurchase), new { id = purchase.id }, detail);
+            return CreatedAtAction(nameof(GetPurchase), new { purchase.id }, detail);
         }
     }
 }

@@ -1,6 +1,6 @@
 using AppForMovies.UT;
-using AppForSEII2526.API.Controllers;
-using AppForSEII2526.API.DTOs.PurchaseDTOs;
+using AppForSEII2526.API.Controller;
+using AppForSEII2526.API.DTOs.DeviceDTOs;
 using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -69,7 +69,7 @@ namespace AppForSEII2526.UT.DevicesController_test
         public async Task GetDevicesForBuying_OK_test()
         {
            
-            var controller = new DevicesController(_context, null);
+            var controller = new DeviceController(_context, null);
 
             
             var result = await controller.GetDevicesForBuying();
