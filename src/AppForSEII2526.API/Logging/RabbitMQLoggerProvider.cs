@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+/*using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AppForSEII2526.API.Logging;
@@ -39,3 +39,4 @@ public class RabbitMQLoggerProvider : ILoggerProvider
         _loggers.Clear();
     }
 }
+*/

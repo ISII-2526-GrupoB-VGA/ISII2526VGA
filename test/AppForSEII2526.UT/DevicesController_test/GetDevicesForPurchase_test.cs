@@ -1,6 +1,6 @@
 using AppForMovies.UT;
-using AppForSEII2526.API.Controllers;
-using AppForSEII2526.API.DTOs.PurchaseDTOs;
+using AppForSEII2526.API.Controller;
+using AppForSEII2526.API.DTOs.DeviceDTOs;
 using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -15,7 +15,7 @@ namespace AppForSEII2526.UT.DevicesController_test
     {
         public GetDevices_test()
         {
-            // ====== Semilla de Model ======
+            
             var models = new List<Model>() {
                 new Model("Model1"),
                 new Model("Model2"),
@@ -23,11 +23,7 @@ namespace AppForSEII2526.UT.DevicesController_test
                 new Model("Model4")
             };
 
-            // ====== Semilla de Device ======
-            // Ojo con el orden del constructor:
-            // Device(int id, string brand, string color, string name,
-            //        double priceForPurchase, double priceForRent,
-            //        int quantityForPurchase, int quantityForRent, int year)
+         
 
             var devices = new List<Device>() {
                 new Device(1, "BrandA", "Black", "Device1", 500.00, 300.00, 10, 5, 2020) { Model = models[0] },
@@ -36,8 +32,7 @@ namespace AppForSEII2526.UT.DevicesController_test
                 new Device(4, "BrandD", "Red",   "Device4", 800.00, 450.00,  5, 2, 2022) { Model = models[3] }
             };
 
-            // Usuario y compra de ejemplo (no los usa el controller,
-            // pero los mantenemos porque estaban en tu base)
+            
             ApplicationUser user = new ApplicationUser(
                 "Victor",
                 "Valtueña",
@@ -73,19 +68,18 @@ namespace AppForSEII2526.UT.DevicesController_test
         [Trait("LevelTesting", "Unit Testing")]
         public async Task GetDevicesForBuying_OK_test()
         {
-            // Arrange
-            var controller = new DevicesController(_context, null);
+           
+            var controller = new DeviceController(_context, null);
 
-            // Act
+            
             var result = await controller.GetDevicesForBuying();
 
-            // Assert
+            
             var okResult = Assert.IsType<OkObjectResult>(result);
             var deviceDTOsActual =
                 Assert.IsType<List<DispositivoComprarDTO>>(okResult.Value);
 
-            // Esperado: proyección igual que en el controller
-            // new DispositivoComprarDTO(d.Id, d.Name, d.Brand, d.Model.NameModel, d.Color, d.priceForPurchase)
+          
 
             var expectedDevices = new List<DispositivoComprarDTO>()
             {
@@ -95,7 +89,7 @@ namespace AppForSEII2526.UT.DevicesController_test
                 new DispositivoComprarDTO(4, "Device4", "BrandD", "Model4", "Red",   800.00),
             };
 
-            // Por si el orden cambiara, comparamos ordenando por Id
+            
             var expectedOrdered = expectedDevices.OrderBy(d => d.Id).ToList();
             var actualOrdered = deviceDTOsActual.OrderBy(d => d.Id).ToList();
 
