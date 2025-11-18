@@ -2,34 +2,34 @@ using Microsoft.Data.Sqlite;
 using System.Data.Common;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Identity;
 
 using AppForSEII2526.API.Data;
 using AppForSEII2526.API.Models;
-using AppForSEII2526.API.Logging;
-
+// usando tu provider de logging (déjalo comentado si no tienes RabbitMQ levantado)
+    
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------------- Services ----------------
+// ----------------- Controllers + JSON -----------------
 builder.Services.AddControllers()
-    // Mostrar enums como cadenas en JSON (p.ej. "CreditCard")
+    // mostrar enums como cadenas
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// Selección de base de datos por variable de entorno DBConnection2Use
+// ----------------- Base de datos -----------------
 string? connection2Database = Environment.GetEnvironmentVariable("DBConnection2Use");
 
+// Igual que en AppForMovies: SQLite / AzureSQL / LocalDB
 switch (connection2Database)
 {
     case "SQLite":
-        // BD en memoria (útil para pruebas)
         DbConnection _connection = new SqliteConnection("Filename=:memory:");
-        // Persistente alternativa:
+        // Si prefieres una BD persistente, usa esta otra línea:
         // DbConnection _connection = new SqliteConnection("Data Source=Application.db;Cache=Shared");
         _connection.Open();
         builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlite(_connection));
@@ -41,20 +41,21 @@ switch (connection2Database)
         break;
 
     default:
-        // LocalDB por defecto (connection string en appsettings.json)
+        // LocalDB / SQL Server definido en appsettings.json
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
         break;
 }
 
-// Identity
+// ----------------- Identity -----------------
 builder.Services.AddAuthorization();
+
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// (Opcional) Relajar política de contraseñas para pruebas
+// (Opcional) relajar contraseñas para pruebas
 builder.Services.Configure<IdentityOptions>(o =>
 {
     o.Password.RequireDigit = false;
@@ -64,7 +65,7 @@ builder.Services.Configure<IdentityOptions>(o =>
     o.Password.RequiredLength = 6;
 });
 
-// Swagger
+// ----------------- Swagger -----------------
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -73,58 +74,64 @@ builder.Services.AddSwaggerGen(options =>
         {
             Title = "AppForSEII2526.API",
             Version = "v1",
-            Description = "API for purchasing and renting devices",
-            License = new OpenApiLicense { Name = "MIT License", Url = new Uri("https://opensource.org/license/mit/") },
-            Contact = new OpenApiContact { Name = "Software Engineering II Team", Email = "isii@on.uclm.es" },
+            Description = "API for renting and purchasing devices",
+            License = new OpenApiLicense
+            {
+                Name = "MIT License",
+                Url = new Uri("https://opensource.org/license/mit/")
+            },
+            Contact = new OpenApiContact
+            {
+                Name = "Software Engineering II Team",
+                Email = "isii@on.uclm.es"
+            },
         });
 
-    // Mantener nombres reales de acciones en Swagger
+    // usar el nombre real de cada acción como OperationId
     options.CustomOperationIds(apiDescription =>
-        apiDescription.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null);
+        apiDescription.TryGetMethodInfo(out MethodInfo methodInfo)
+            ? methodInfo.Name
+            : null);
 });
 
-
-// ?? registra tu proveedor leyendo la sección "RabbitMQ" del appsettings.json
-builder.Logging.AddRabbitMQ(builder.Configuration.GetSection("RabbitMQ"));
+// ----------------- Logger RabbitMQ (opcional) -----------------
+// Si NO quieres depender de Docker/RabbitMQ, déjalo comentado.
+// Cuando quieras activarlo, descomenta la línea siguiente y configura appsettings.json.
+// builder.Logging.AddRabbitMQ(builder.Configuration.GetSection("RabbitMQ"));
 
 var app = builder.Build();
 
-// Mapear endpoints de Identity (solo si quieres exponer /register, /login, etc.)
-// app.MapIdentityApi<ApplicationUser>();
-
+// ----------------- DB init + Seed -----------------
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
-// ---------------- DB Migrate + Seed ----------------
 using (var scope = app.Services.CreateScope())
 {
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var cnn = db.Database.GetDbConnection();
-        Console.WriteLine($"[EF] Provider: {db.Database.ProviderName}");
-        Console.WriteLine($"[EF] ConnectionString: {cnn.ConnectionString}");
-        Console.WriteLine($"[CFG] DBConnection2Use: {connection2Database ?? "(null)"}");
-        // Crear o migrar BD
         if (connection2Database == "SQLite")
             db.Database.EnsureCreated();
         else
             db.Database.Migrate();
 
-        // Seed (roles, usuarios, modelos/dispositivos y compra opcional)
+        // Rellenar datos iniciales (roles, usuarios, dispositivos, etc.)
         SeedData.Initialize(db, scope.ServiceProvider, logger);
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "An error occurred initializing/seeding the DB.");
+        logger.LogError(ex, "An error occurred seeding the DB.");
     }
 }
 
-// ---------------- Pipeline HTTP ----------------
+// ----------------- Pipeline HTTP -----------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.DisplayOperationId());
+    app.UseSwaggerUI(c =>
+    {
+        c.DisplayOperationId();
+    });
 }
 
 app.UseHttpsRedirection();
@@ -135,5 +142,5 @@ app.MapControllers();
 
 app.Run();
 
-// Expose Program for integration tests
+// Exponer Program para los tests de integración
 public partial class Program { }
