@@ -51,6 +51,20 @@ namespace AppForSEII2526.API.DTOs.ReviewDTOs
         [Required]
         [MinLength(1, ErrorMessage = "Debe reseñar al menos un dispositivo")]
         public IList<ReviewItemForCreateDTO> ReviewItems { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ReviewForCreateDTO dTO &&
+                   CustomerCountry == dTO.CustomerCountry &&
+                   CustomerName == dTO.CustomerName &&
+                   ReviewTitle == dTO.ReviewTitle &&
+                   EqualityComparer<IList<ReviewItemForCreateDTO>>.Default.Equals(ReviewItems, dTO.ReviewItems);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(CustomerCountry, CustomerName, ReviewTitle, ReviewItems);
+        }
     }
 
     // DTO para cada dispositivo reseñado (comentario + puntuación obligatoria)

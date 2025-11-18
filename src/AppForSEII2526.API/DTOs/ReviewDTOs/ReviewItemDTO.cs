@@ -1,4 +1,5 @@
-﻿namespace AppForSEII2526.API.DTOs.ReviewDTOs
+﻿
+namespace AppForSEII2526.API.DTOs.ReviewDTOs
 
 {
     public class ReviewItemDTO
@@ -19,6 +20,22 @@
             Color = color;
             year = año;
             Model = modelo;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ReviewItemDTO dTO &&
+                   Id == dTO.Id &&
+                   Name == dTO.Name &&
+                   Brand == dTO.Brand &&
+                   Color == dTO.Color &&
+                   year == dTO.year &&
+                   Model == dTO.Model;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, Name, Brand, Color, year, Model);
         }
 
         /*

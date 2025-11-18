@@ -1,4 +1,5 @@
-﻿namespace AppForSEII2526.API.DTOs.ReviewDTOs
+﻿
+namespace AppForSEII2526.API.DTOs.ReviewDTOs
 
 {
     public class ReviewsDTO //Esyo es para hcer una prueba de si se crea  o no la reseña
@@ -18,6 +19,21 @@
             CustomerId = customerID;
             ReviewTitle = reviewTitle;
             AplicationUserId = apliacationUserId;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ReviewsDTO dTO &&
+                   ReviewID == dTO.ReviewID &&
+                   CustomerCountry == dTO.CustomerCountry &&
+                   CustomerId == dTO.CustomerId &&
+                   ReviewTitle == dTO.ReviewTitle &&
+                   AplicationUserId == dTO.AplicationUserId;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(ReviewID, CustomerCountry, CustomerId, ReviewTitle, AplicationUserId);
         }
 
         /*
