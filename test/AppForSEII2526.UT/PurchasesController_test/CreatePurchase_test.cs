@@ -18,7 +18,7 @@ namespace AppForSEII2526.UT.PurchasesController_test
     
     public class CreatePurchase_test : AppForSEII25264SqliteUT
     {
-        // Datos base que reutilizamos en varios tests
+        // Datos base que reutilizamos en varios tests 
         private const string _deliveryAddress = "C/ Mayor 1";
         private const string _customerFirstName = "Alicia";
         private const string _customerLastName = "Pérez";
