@@ -23,11 +23,18 @@ namespace AppForSEII2526.API.DTOs.PurchaseDTOs
         public int TotalQuantity { get; set; }
         public List<PurchaseItemDTO> Items { get; set; } = new();
 
+
+        protected bool CompararDate(DateTime d1, DateTime d2)
+        {
+            return (d1 - d2).Duration() < TimeSpan.FromMinutes(1);
+        }
+
         public override bool Equals(object? obj)
         {
             return obj is PurchaseDetailDTO dto &&
                    Id == dto.Id &&
-                   PurchaseDate == dto.PurchaseDate &&
+                   CompararDate(PurchaseDate, dto.PurchaseDate) &&
+                   //PurchaseDate == dto.PurchaseDate &&
                    CustomerFullName == dto.CustomerFullName &&
                    DeliveryAddress == dto.DeliveryAddress &&
                    TotalPrice == dto.TotalPrice &&
@@ -36,6 +43,14 @@ namespace AppForSEII2526.API.DTOs.PurchaseDTOs
         }
 
         public override int GetHashCode()
-            => HashCode.Combine(Id, PurchaseDate, CustomerFullName, DeliveryAddress, TotalPrice, TotalQuantity, Items);
+        => HashCode.Combine(
+            Id,
+            CustomerFullName,
+            DeliveryAddress,
+            TotalPrice,
+            TotalQuantity,
+            Items?.Count ?? 0
+        );
+
     }
 }
