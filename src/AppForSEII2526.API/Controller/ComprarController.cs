@@ -34,7 +34,7 @@ namespace AppForSEII2526.API.Controller
 
 
 
-        // GET api/purchases/diag/db
+        
         [HttpGet("diag/db")]
         public async Task<object> Diag()
         {
@@ -108,9 +108,9 @@ namespace AppForSEII2526.API.Controller
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
         public async Task<ActionResult> CreatePurchase(PurchaseForCreateDTO purchaseForCreate)
         {
-            // Validaciones de negocio simples
+            
             if (purchaseForCreate.PurchaseItems.Count == 0)
-                ModelState.AddModelError("PurchaseItems", "Error! You must include at least one device.");
+                ModelState.AddModelError("PurchaseItems","Error! Hay que incluir un dispositivo");
 
             if (string.IsNullOrWhiteSpace(purchaseForCreate.CustomerFirstName))
                 ModelState.AddModelError("CustomerFirstName", "First name is required");
@@ -119,20 +119,20 @@ namespace AppForSEII2526.API.Controller
                 ModelState.AddModelError("CustomerLastName", "Last name is required");
 
             var user = await _context.ApplicationUsers
-                .FirstOrDefaultAsync(u => u.UserName == purchaseForCreate.CustomerUserName);
+            .FirstOrDefaultAsync(u => u.UserName == purchaseForCreate.CustomerUserName);
             if (user == null)
-                ModelState.AddModelError("PurchaseApplicationUser", "Error! UserName is not registered.");
+                ModelState.AddModelError("PurchaseApplicationUser", "Error! Nombre de usuario no registrado");
 
             if (ModelState.ErrorCount > 0)
                 return BadRequest(new ValidationProblemDetails(ModelState));
 
-            // IDs de dispositivos desde PurchaseItemDTO (nota: DeviceID)
+            
             var deviceIds = purchaseForCreate.PurchaseItems
                 .Select(i => i.DeviceID)
                 .Distinct()
                 .ToList();
 
-            // Traemos info mínima necesaria de los devices
+            
             var devices = await _context.Devices
                 .Where(d => deviceIds.Contains(d.Id))
                 .Select(d => new
@@ -145,11 +145,11 @@ namespace AppForSEII2526.API.Controller
                 })
                 .ToListAsync();
 
-            // Construimos la compra usando el PaymentMethod recibido en el DTO
+            
             var purchase = new Purchase(
                 deliveryAddress: purchaseForCreate.DeliveryAddress,
                 id: 0,
-                paymentMethod: purchaseForCreate.PaymentMethod, // <- del DTO
+                paymentMethod: purchaseForCreate.PaymentMethod, 
                 purchaseDate: DateTime.Now,
                 totalPrice: 0.0,
                 totalQuantity: 0
@@ -174,11 +174,12 @@ namespace AppForSEII2526.API.Controller
                 if (dev.quantityForPurchase < item.Quantity)
                 {
                     ModelState.AddModelError("PurchaseItems",
-                        $"Error! Not enough stock for device {dev.Id}. Requested {item.Quantity}, available {dev.quantityForPurchase}.");
+                        $"Error! No hay suficiente stock de este dispositivo. " +
+                        $"Id: {dev.Id}. Pedidos {item.Quantity}, disponibles {dev.quantityForPurchase}.");
                     continue;
                 }
 
-                var unit = dev.priceForPurchase; // precio “congelado” en la línea
+                var unit = dev.priceForPurchase; 
                 total += unit * item.Quantity;
                 totalQty += item.Quantity;
 
@@ -209,7 +210,7 @@ namespace AppForSEII2526.API.Controller
                 return Conflict("Error! There was an error while saving your purchase. Please, try again later.");
             }
 
-            // Detalle de respuesta (re-lee datos del device para completar brand/model/color)
+            
             var detail = new PurchaseDetailDTO(
                 purchase.id,
                 purchase.PurchaseDate,
