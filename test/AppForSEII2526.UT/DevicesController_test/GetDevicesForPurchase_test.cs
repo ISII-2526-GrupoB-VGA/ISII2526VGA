@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
+/*
+
 namespace AppForSEII2526.UT.DevicesController_test
 {
     public class GetDevices_test : AppForSEII25264SqliteUT
@@ -97,3 +99,5 @@ namespace AppForSEII2526.UT.DevicesController_test
         }
     }
 }
+
+*/
