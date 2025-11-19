@@ -2,7 +2,7 @@ namespace AppForSEII2526.API.DTOs.PurchaseDTOs
 {
     public class PurchaseItemDTO
     {
-        // Para POST (entrada)
+        // Para POST
         [JsonConstructor]
         public PurchaseItemDTO(int deviceID, int quantity, string? description = "")
         {
@@ -11,7 +11,7 @@ namespace AppForSEII2526.API.DTOs.PurchaseDTOs
             Description = description;
         }
 
-        // Para GET (salida)
+        // Para GET
         public PurchaseItemDTO(int deviceID, string brand, string model, string color,
                                double price, int quantity, string? description = "")
         {
@@ -30,7 +30,7 @@ namespace AppForSEII2526.API.DTOs.PurchaseDTOs
         public int Quantity { get; set; }
         public string? Description { get; set; }
 
-        // Solo salida (opcionales en POST)
+       
         public string? Brand { get; set; }
         public string? Model { get; set; }
         public string? Color { get; set; }
