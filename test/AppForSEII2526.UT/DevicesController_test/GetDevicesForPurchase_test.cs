@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-/*
+
 
 namespace AppForSEII2526.UT.DevicesController_test
 {
@@ -100,4 +100,3 @@ namespace AppForSEII2526.UT.DevicesController_test
     }
 }
 
-*/
