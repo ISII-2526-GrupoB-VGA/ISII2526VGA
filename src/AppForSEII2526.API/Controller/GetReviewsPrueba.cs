@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AppForSEII2526.API.Controller
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]")] //Esto es la prueba que a nadie salvo a mí le interesa
     [ApiController]
     public class GetReviewsPrueba : ControllerBase
     {
