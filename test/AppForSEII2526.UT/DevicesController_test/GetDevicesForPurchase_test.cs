@@ -54,9 +54,6 @@ namespace AppForSEII2526.UT.DevicesController_test
                 ApplicationUser = user
             };
 
-         
-
-            
 
             _context.Add(user);
             _context.AddRange(models);

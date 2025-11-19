@@ -7,9 +7,9 @@
             Id = id;
             Nombre = nombre;
             Marca = marca;
-            Modelo = modelo;   // <- Model.NameModel
+            Modelo = modelo;   
             Color = color;
-            Precio = precio;   // <- Device.priceForPurchase
+            Precio = precio;   
         }
 
         public int Id { get; set; }
