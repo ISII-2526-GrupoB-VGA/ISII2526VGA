@@ -70,7 +70,7 @@ namespace AppForSEII2526.UT.ReviewController_test
             };
 
             _context.Users.Add(user);
-            _context.SaveChanges(); // ✅ GUARDAR USUARIO ANTES de crear Review
+            _context.SaveChanges(); 
 
             // 4. Ahora sí crear la Review (ya existe el usuario en BD)
             var review = new Review
@@ -101,6 +101,16 @@ namespace AppForSEII2526.UT.ReviewController_test
                 }
             };
 
+            //Caso 0: Prueba de antes del examen
+
+            //var reviewEspana = new ReviewForCreateDTO
+            //{
+            //    ReviewTitle = $"{_Country} Galicia",
+            //    CustomerCountry = _Country,
+            //    CustomerName = _CustomerUserName1,
+            //    ReviewItems = validItems
+            //};
+
             // Caso 1: falta el título (usar null! para suprimir warning)
             var reviewNoTitulo = new ReviewForCreateDTO
             {
@@ -123,7 +133,7 @@ namespace AppForSEII2526.UT.ReviewController_test
             var noDispositivo = new ReviewForCreateDTO
             {
                 ReviewTitle = _ReviewTitle1,
-                CustomerCountry = _Country, // ✅ Corregido: debe tener país
+                CustomerCountry = _Country, 
                 CustomerName = _CustomerUserName1,
                 ReviewItems = new List<ReviewItemForCreateDTO>()
             };
@@ -164,11 +174,12 @@ namespace AppForSEII2526.UT.ReviewController_test
 
             return new List<object[]>
             {
+                //new object[] { reviewEspana, "Error. El país debe ser España o una de sus comunidades autónomas" },
                 new object[] { reviewNoTitulo, "Error. El título de la reseña es obligatorio (flujo alternativo 3)" },
                 new object[] { reviewNoPais, "Error. El país es obligatorio (flujo alternativo 3)" },
                 new object[] { noDispositivo, "Error. Debe incluir al menos un dispositivo para reseñar (flujo alternativo 2)" },
                 new object[] { puntuacionIncorrecta, "Error! La valoración debe estar entre 1 y 5 (flujo alternativo 5)." },
-                new object[] { comentarioVacio, "El comentario es obligatorio" }
+                new object[] { comentarioVacio, "El comentario es obligatorio" },
             };
         }
 
@@ -236,10 +247,10 @@ namespace AppForSEII2526.UT.ReviewController_test
             var createdResult = Assert.IsType<CreatedAtActionResult>(result);
             var actualReviewDetailDTO = Assert.IsType<ReviewDetailDTO>(createdResult.Value);
 
-            // ✅ Crear el objeto esperado CON LA FECHA REAL del resultado
+            //Crear el objeto esperado CON LA FECHA REAL del resultado
             ReviewDetailDTO expectedReviewDetailDTO = new ReviewDetailDTO(
                 id: actualReviewDetailDTO.Id,  // Usar el ID real generado
-                dateOfReview: actualReviewDetailDTO.DateOfReview,  // ✅ Usar la fecha real
+                dateOfReview: actualReviewDetailDTO.DateOfReview,  
                 customerCountry: _Country,
                 reviewTitle: _ReviewTitle2,
                 overallRating: 5.0,

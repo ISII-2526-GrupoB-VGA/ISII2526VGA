@@ -48,6 +48,13 @@ namespace AppForSEII2526.API.Controller
         public async Task<ActionResult> CreateReview(ReviewForCreateDTO dto)
         {
             // --- VALIDACIONES ---
+
+            //Voy ha intentar que solo pueda crearse si empieza por España, por ejemplo España Galicia
+
+            //if (dto.CustomerCountry.Contains("España") == false)
+            //    ModelState.AddModelError(nameof(dto.CustomerCountry),
+            //        "Error. El país debe ser España o una de sus comunidades autónomas");
+
             if (string.IsNullOrWhiteSpace(dto.CustomerCountry))
                 ModelState.AddModelError(nameof(dto.CustomerCountry),
                     "Error. El país es obligatorio (flujo alternativo 3)");
@@ -59,6 +66,8 @@ namespace AppForSEII2526.API.Controller
             if (dto.ReviewItems == null || !dto.ReviewItems.Any())
                 ModelState.AddModelError(nameof(dto.ReviewItems),
                     "Error. Debe incluir al menos un dispositivo para reseñar (flujo alternativo 2)");
+
+
 
             foreach (var item in dto.ReviewItems ?? Enumerable.Empty<ReviewItemForCreateDTO>())
             {
@@ -73,7 +82,7 @@ namespace AppForSEII2526.API.Controller
             if (ModelState.ErrorCount > 0)
                 return BadRequest(new ValidationProblemDetails(ModelState));
 
-            // --- VERIFICAR DISPOSITIVOS ---
+            // VERIFICAR DISPOSITIVOS 
             var deviceIds = dto.ReviewItems.Select(i => i.DeviceId).Distinct().ToList();
             var devices = await _context.Devices
                 .Include(d => d.Model)
@@ -165,8 +174,7 @@ namespace AppForSEII2526.API.Controller
 
         // GET: api/Review/{id}
         // Devuelve el detalle de la reseña (paso 7 del caso de uso)
-        [HttpGet("{id:int}")]
-        //[Route("[action]")] no se porque cojonrs no iba, pero ya va x quiar eesto
+        [HttpGet("{id:int}")] //METO ID Y SACO DISPOSITIVOS
         [ProducesResponseType(typeof(ReviewDetailDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> GetReview(int id)
@@ -176,7 +184,7 @@ namespace AppForSEII2526.API.Controller
                 .Where(r => r.ReviewId == id)
 
                 .Include(r => r.ReviewItems) //join table RentalItems
-                    .ThenInclude(ri => ri.Device) //then join table Movies
+                    .ThenInclude(ri => ri.Device) //then join table Devices
                         .ThenInclude(device => device.Model) //then join table Genre
 
                 .Include(r => r.ApplicationUser) //join table ApplicationUser
@@ -191,6 +199,40 @@ namespace AppForSEII2526.API.Controller
                 return NotFound();
             return Ok(review);
         }
+
+
+
+
+        /*
+         * -----------------------------------------------------------------------------*
+        //ESTO ES UNA PRUEBA EN LA QUE METERÉ EL PAÍS Y ME DARÁ TODAS LAS RESEÑAS DE AHÍ
+        * -----------------------------------------------------------------------------*
+        * 
+        [HttpGet("country/{country}")] //METO ID Y SACO DISPOSITIVOS
+        [ProducesResponseType(typeof(ReviewDetailDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> GetReviewsByCountryPrueba(string country)
+        {
+            var reviews = await _context.Reviews
+                 .Where(r => r.CustomerCountry == country)
+
+                    .Include(r => r.ReviewItems) //join table RentalItems
+                        .ThenInclude(ri => ri.Device) //then join table Movies
+                            .ThenInclude(device => device.Model) //then join table Genre
+
+                    .Include(r => r.ApplicationUser)
+
+                    .Select(r => new ReviewDetailDTO(r.ReviewId, r.DateOfReview, r.CustomerCountry,
+                        r.ReviewTitle, r.OverallRating,
+                        r.ReviewItems
+                            .Select(ri => new ReviewItemDetailDTO(ri.DeviceId, ri.Device.Name, ri.Device.Model.NameModel,
+                            ri.Device.Year, ri.Comment, ri.Rating)).ToList(), r.ApplicationUser.FirstName)).ToListAsync(); //El toList es para q me devuelva lista
+            if (reviews == null)
+                return NotFound();
+            return Ok(reviews);
+        }
+        */
+
     }
 }
 
