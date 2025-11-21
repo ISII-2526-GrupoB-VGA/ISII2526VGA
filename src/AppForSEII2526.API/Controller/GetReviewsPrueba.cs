@@ -31,7 +31,7 @@ namespace AppForSEII2526.API.Controller
                     d.CustomerCountry,
                     d.CustomerId,
                     d.ReviewTitle,
-                    d.ApplicationUserId  //¿Pq es un string????
+                    d.ApplicationUserId  
                     ))
                 .ToListAsync();
 

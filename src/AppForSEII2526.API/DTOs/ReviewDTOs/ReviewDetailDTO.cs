@@ -4,12 +4,11 @@ using System.Linq;
 
 namespace AppForSEII2526.API.DTOs.ReviewDTOs
 {
-    /// <summary>
-    /// DTO de GetDetails (paso 7 del caso de uso).
-    /// Muestra la reseña realizada: datos del cliente (nombre y país), título, fecha,
-    /// y por cada dispositivo: nombre, modelo, año, puntuación y comentario.
-    /// NO hereda de ReviewForCreateDTO porque son DTOs con propósitos distintos.
-    /// </summary>
+    
+    // DTO de GetDetails(paso 7 del caso de uso).
+    // Muestra la reseña realizada: datos del cliente(nombre y país), título, fecha,
+    // y por cada dispositivo: nombre, modelo, año, puntuación y comentario.
+    // NO hereda de ReviewForCreateDTO porque son DTOs con propósitos distintos.
     public class ReviewDetailDTO
     {
         public ReviewDetailDTO()
@@ -75,10 +74,9 @@ namespace AppForSEII2526.API.DTOs.ReviewDTOs
         }
     }
 
-    /// <summary>
-    /// DTO para cada ítem de reseña en el detalle (GET).
-    /// Incluye información completa del dispositivo (nombre, modelo, año) además del comentario y rating.
-    /// </summary>
+    
+    // DTO para cada ítem de reseña en el detalle (GET).
+    // Incluye información completa del dispositivo (nombre, modelo, año) además del comentario y rating.
     public class ReviewItemDetailDTO
     {
         public ReviewItemDetailDTO() { }
