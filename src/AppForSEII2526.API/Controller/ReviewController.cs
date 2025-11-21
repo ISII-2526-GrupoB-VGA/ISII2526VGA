@@ -49,15 +49,30 @@ namespace AppForSEII2526.API.Controller
         {
             // --- VALIDACIONES ---
 
-            //Voy ha intentar que solo pueda crearse si empieza por España, por ejemplo España Galicia
 
-            //if (dto.CustomerCountry.Contains("España") == false)
-            //    ModelState.AddModelError(nameof(dto.CustomerCountry),
-            //        "Error. El país debe ser España o una de sus comunidades autónomas");
 
+         
+
+            ////Voy a intentar que solo pueda crearse si empieza por España, por ejemplo España Galicia
             if (string.IsNullOrWhiteSpace(dto.CustomerCountry))
+            {
                 ModelState.AddModelError(nameof(dto.CustomerCountry),
                     "Error. El país es obligatorio (flujo alternativo 3)");
+            }
+            //else if (!dto.CustomerCountry.StartsWith("España "))
+            //{
+            //    ModelState.AddModelError(nameof(dto.CustomerCountry),
+            //        "Error. El país empezar por España");
+            //}
+
+
+
+
+
+
+
+
+
 
             if (string.IsNullOrWhiteSpace(dto.ReviewTitle))
                 ModelState.AddModelError(nameof(dto.ReviewTitle),

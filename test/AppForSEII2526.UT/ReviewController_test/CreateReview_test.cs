@@ -105,13 +105,13 @@ namespace AppForSEII2526.UT.ReviewController_test
 
             //var reviewEspana = new ReviewForCreateDTO
             //{
-            //    ReviewTitle = $"{_Country} Galicia",
+            //    ReviewTitle = "Galicia",
             //    CustomerCountry = _Country,
-            //    CustomerName = _CustomerUserName1,
+            //    CustomerName = _Custumer1Email,
             //    ReviewItems = validItems
             //};
 
-            // Caso 1: falta el título (usar null! para suprimir warning)
+            // Caso 1: falta el título 
             var reviewNoTitulo = new ReviewForCreateDTO
             {
                 ReviewTitle = null!, // Suprime warning CS8625
@@ -174,7 +174,7 @@ namespace AppForSEII2526.UT.ReviewController_test
 
             return new List<object[]>
             {
-                //new object[] { reviewEspana, "Error. El país debe ser España o una de sus comunidades autónomas" },
+                //new object[] { reviewEspana, "Error. El país empezar por España" },
                 new object[] { reviewNoTitulo, "Error. El título de la reseña es obligatorio (flujo alternativo 3)" },
                 new object[] { reviewNoPais, "Error. El país es obligatorio (flujo alternativo 3)" },
                 new object[] { noDispositivo, "Error. Debe incluir al menos un dispositivo para reseñar (flujo alternativo 2)" },
@@ -227,7 +227,7 @@ namespace AppForSEII2526.UT.ReviewController_test
             ReviewForCreateDTO reviewDTO = new ReviewForCreateDTO()
             {
                 ReviewTitle = _ReviewTitle2,
-                CustomerCountry = _Country,
+                CustomerCountry = "España Galicia",
                 CustomerName = _Custumer1Email,
                 ReviewItems = new List<ReviewItemForCreateDTO>()
                 {
@@ -251,7 +251,7 @@ namespace AppForSEII2526.UT.ReviewController_test
             ReviewDetailDTO expectedReviewDetailDTO = new ReviewDetailDTO(
                 id: actualReviewDetailDTO.Id,  // Usar el ID real generado
                 dateOfReview: actualReviewDetailDTO.DateOfReview,  
-                customerCountry: _Country,
+                customerCountry: "España Galicia",
                 reviewTitle: _ReviewTitle2,
                 overallRating: 5.0,
                 reviewItems: new List<ReviewItemDetailDTO>()
