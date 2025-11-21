@@ -83,7 +83,7 @@ namespace AppForSEII2526.UT.ReviewController_test
                 ReviewTitle = _ReviewTitle1
             };
 
-            review.ReviewItems.Add(new ReviewItem("Comentario de relleno", devices[0].Id, 4, review));
+            review.ReviewItems.Add(new ReviewItem("Reseña para Comentario de relleno", devices[0].Id, 4, review));
 
             _context.Add(review);
             _context.SaveChanges();
@@ -96,35 +96,27 @@ namespace AppForSEII2526.UT.ReviewController_test
                 new ReviewItemForCreateDTO
                 {
                     DeviceId = 1,
-                    Comment = "Comentario correcto",
+                    Comment = "Reseña para Comentario correcto",
                     Rating = 4
                 }
             };
 
-            //Caso 0: Prueba de antes del examen
 
-            //var reviewEspana = new ReviewForCreateDTO
-            //{
-            //    ReviewTitle = "Galicia",
-            //    CustomerCountry = _Country,
-            //    CustomerName = _Custumer1Email,
-            //    ReviewItems = validItems
-            //};
-
-            // Caso 1: falta el título 
-            var reviewNoTitulo = new ReviewForCreateDTO
-            {
-                ReviewTitle = null!, // Suprime warning CS8625
-                CustomerCountry = _Country,
-                CustomerName = _CustomerUserName1,
-                ReviewItems = validItems
-            };
 
             // Caso 2: falta el país
             var reviewNoPais = new ReviewForCreateDTO
             {
                 ReviewTitle = _ReviewTitle1,
                 CustomerCountry = null!, // Suprime warning CS8625
+                CustomerName = _CustomerUserName1,
+                ReviewItems = validItems
+            };
+
+            // Caso 1: falta el título 
+            var revNoTitulo = new ReviewForCreateDTO
+            {
+                ReviewTitle = null!, // Suprime warning CS8625
+                CustomerCountry = _Country,
                 CustomerName = _CustomerUserName1,
                 ReviewItems = validItems
             };
@@ -155,6 +147,9 @@ namespace AppForSEII2526.UT.ReviewController_test
                 }
             };
 
+
+
+
             // Caso 5: comentario vacío
             var comentarioVacio = new ReviewForCreateDTO
             {
@@ -172,14 +167,40 @@ namespace AppForSEII2526.UT.ReviewController_test
                 }
             };
 
+
+
+
+
+
+
+            //Caso reseña debe empezar por reseña para
+
+            var ReseñaPara = new ReviewForCreateDTO
+            {
+                ReviewTitle = _ReviewTitle1,
+                CustomerCountry = _Country,
+                CustomerName = _CustomerUserName1,
+                ReviewItems = new List<ReviewItemForCreateDTO>()
+                {
+                    new ReviewItemForCreateDTO
+                    {
+                        DeviceId = 1,
+                        Comment = "Comentario para dispositivo"!, // Suprime warning
+                        Rating = 3
+                    }
+                }
+            };
+
+
             return new List<object[]>
             {
-                //new object[] { reviewEspana, "Error. El país empezar por España" },
-                new object[] { reviewNoTitulo, "Error. El título de la reseña es obligatorio (flujo alternativo 3)" },
-                new object[] { reviewNoPais, "Error. El país es obligatorio (flujo alternativo 3)" },
+
+                new object[] { reviewNoPais, "Error, El país es obligatorio (flujo alternativo 3)" },  //Este no va
+                new object[] { revNoTitulo, "Error, El título de la reseña es obligatorio (flujo alternativo 3)" }, //Esto no va
                 new object[] { noDispositivo, "Error. Debe incluir al menos un dispositivo para reseñar (flujo alternativo 2)" },
                 new object[] { puntuacionIncorrecta, "Error! La valoración debe estar entre 1 y 5 (flujo alternativo 5)." },
                 new object[] { comentarioVacio, "El comentario es obligatorio" },
+                new object[] { ReseñaPara, "Error, el comentario de la reseña: debe empezar por Reseña para" },
             };
         }
 
@@ -206,7 +227,7 @@ namespace AppForSEII2526.UT.ReviewController_test
             var errorActual = problemDetails.Errors.First().Value[0];
 
             //we check that the expected error message and actual are the same
-            Assert.StartsWith(errorExpected, errorActual);
+            Assert.Equal(errorExpected, errorActual);
         }
 
 
@@ -234,7 +255,7 @@ namespace AppForSEII2526.UT.ReviewController_test
                     new ReviewItemForCreateDTO
                     {
                         DeviceId = 1,
-                        Comment = "Comentario válido y correcto",
+                        Comment = "Reseña para dispositivo",
                         Rating = 5
                     }
                 }
@@ -261,7 +282,7 @@ namespace AppForSEII2526.UT.ReviewController_test
                         deviceName: "NokiaName",
                         deviceModel: _ReviewTitle1,
                         deviceYear: 2025,
-                        comment: "Comentario válido y correcto",
+                        comment: "Reseña para dispositivo",
                         rating: 5
                     )
                 },
