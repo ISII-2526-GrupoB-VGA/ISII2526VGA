@@ -146,6 +146,8 @@ namespace AppForSEII2526.API.Controller
                 .ToListAsync();
 
             
+
+
             var purchase = new Purchase(
                 deliveryAddress: purchaseForCreate.DeliveryAddress,
                 id: 0,
@@ -165,9 +167,16 @@ namespace AppForSEII2526.API.Controller
             foreach (var item in purchaseForCreate.PurchaseItems) // item es PurchaseItemDTO
             {
                 var dev = devices.FirstOrDefault(d => d.Id == item.DeviceID);
+                
                 if (dev == null)
                 {
                     ModelState.AddModelError("PurchaseItems", $"Error! DeviceID {item.DeviceID} does not exist.");
+                    continue;
+                }
+
+                if (dev.Brand.Contains("Xiaomi") || dev.Brand.Contains("Huawei"))
+                {
+                    ModelState.AddModelError("PurchaseItems", $"Error: Las tecnologías de estas marcas ya no están disponibles, siguiendo recomendaciones de las autoridades competentes en materia de seguridad.");
                     continue;
                 }
 

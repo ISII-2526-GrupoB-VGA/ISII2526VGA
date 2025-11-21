@@ -67,6 +67,32 @@ namespace AppForSEII2526.UT.PurchasesController_test
                     quantityForRent = 5,
                     Year = 2024,
                     ModelId = s24Model.Id
+                },
+
+                 new Device
+                {
+                    Brand = "Huawei",
+                    Color = "Black",
+                    Name = _device2Name,
+                    priceForPurchase = 699,
+                    priceForRent = 22,
+                    quantityForPurchase = 10,
+                    quantityForRent = 5,
+                    Year = 2024,
+                    ModelId = s24Model.Id
+                },
+
+                 new Device
+                {
+                    Brand = "Xiaomi",
+                    Color = "Black",
+                    Name = _device2Name,
+                    priceForPurchase = 699,
+                    priceForRent = 22,
+                    quantityForPurchase = 10,
+                    quantityForRent = 5,
+                    Year = 2024,
+                    ModelId = s24Model.Id
                 }
             };
             _context.AddRange(devices);
@@ -143,6 +169,30 @@ namespace AppForSEII2526.UT.PurchasesController_test
             price: 799)
     };
 
+            var marcaHuawei = new List<PurchaseItemDTO>
+    {
+        new PurchaseItemDTO(
+            deviceID: 3,
+            quantity: 1,
+            description: "Marca invalida",
+            brand: "Huawei",
+            model: _device2Name,
+            color: "Black",
+            price: 699)
+    };
+
+            var marcaXiaomi = new List<PurchaseItemDTO>
+    {
+        new PurchaseItemDTO(
+            deviceID: 4,
+            quantity: 1,
+            description: "Marca invalida",
+            brand: "Xiaomi",
+            model: _device2Name,
+            color: "Black",
+            price: 699)
+    };
+
             // 1) Sin items
             var purchaseNoItem = new PurchaseForCreateDTO(
                 customerUserName: _userNameCustomer,
@@ -170,6 +220,24 @@ namespace AppForSEII2526.UT.PurchasesController_test
                 paymentMethod: PaymentMethodType.CreditCard,
                 purchaseItems: itemsDeviceNotAvailable);
 
+            // 4) Dispositivo Huawei
+            var compraHuawei = new PurchaseForCreateDTO(
+                customerUserName: _userNameCustomer,
+                customerFirstName: _customerFirstName,
+                customerLastName: _customerLastName,
+                deliveryAddress: _deliveryAddress,
+                paymentMethod: PaymentMethodType.CreditCard,
+                purchaseItems: marcaXiaomi);
+
+            // 5 Dispositivo Xiaomi
+            var compraXiaomi = new PurchaseForCreateDTO(
+                customerUserName: _userNameCustomer,
+                customerFirstName: _customerFirstName,
+                customerLastName: _customerLastName,
+                deliveryAddress: _deliveryAddress,
+                paymentMethod: PaymentMethodType.CreditCard,
+                purchaseItems: marcaHuawei);
+
             var allTests = new List<object[]>
             {
 
@@ -186,6 +254,14 @@ namespace AppForSEII2526.UT.PurchasesController_test
                 new object[]
                 {
                     purchaseDeviceNotAvailable,"Error! No hay suficiente stock de este dispositivo"
+                },
+                 new object[]
+                {
+                    compraXiaomi,"Error: Las tecnologías de estas marcas ya no están disponibles, siguiendo recomendaciones de las autoridades competentes en materia de seguridad."
+                },
+                 new object[]
+                {
+                    compraHuawei,"Error: Las tecnologías de estas marcas ya no están disponibles, siguiendo recomendaciones de las autoridades competentes en materia de seguridad."
                 },
             };
 
