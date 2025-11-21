@@ -53,30 +53,19 @@ namespace AppForSEII2526.API.Controller
 
          
 
-            ////Voy a intentar que solo pueda crearse si empieza por España, por ejemplo España Galicia
-            if (string.IsNullOrWhiteSpace(dto.CustomerCountry))
+            if (string.IsNullOrWhiteSpace(dto.CustomerCountry)) 
             {
                 ModelState.AddModelError(nameof(dto.CustomerCountry),
-                    "Error. El país es obligatorio (flujo alternativo 3)");
+                    "Error, El país es obligatorio (flujo alternativo 3)");
             }
-            //else if (!dto.CustomerCountry.StartsWith("España "))
-            //{
-            //    ModelState.AddModelError(nameof(dto.CustomerCountry),
-            //        "Error. El país empezar por España");
-            //}
+            
 
 
-
-
-
-
-
-
-
-
-            if (string.IsNullOrWhiteSpace(dto.ReviewTitle))
+            if (string.IsNullOrWhiteSpace(dto.ReviewTitle)) 
+            { 
                 ModelState.AddModelError(nameof(dto.ReviewTitle),
-                    "Error. El título de la reseña es obligatorio (flujo alternativo 3)");
+                    "Error, El título de la reseña es obligatorio (flujo alternativo 3)");
+            }
 
             if (dto.ReviewItems == null || !dto.ReviewItems.Any())
                 ModelState.AddModelError(nameof(dto.ReviewItems),
@@ -90,9 +79,25 @@ namespace AppForSEII2526.API.Controller
                     ModelState.AddModelError(nameof(dto.ReviewItems),
                         "Error! La valoración debe estar entre 1 y 5 (flujo alternativo 5).");
 
-                if (string.IsNullOrWhiteSpace(item.Comment))
+
+
+
+
+                if (string.IsNullOrWhiteSpace(item.Comment))  //COMENTARIO obligatorio
+                {
                     ModelState.AddModelError(nameof(dto.ReviewItems),
                         "El comentario es obligatorio");
+                }
+
+                else if (!item.Comment.StartsWith("Reseña para"))
+                {
+                    ModelState.AddModelError(nameof(dto.ReviewItems),
+                    "Error, el comentario de la reseña: debe empezar por Reseña para");
+                }
+
+
+
+
             }
             if (ModelState.ErrorCount > 0)
                 return BadRequest(new ValidationProblemDetails(ModelState));
