@@ -1,8 +1,250 @@
 ﻿@page "/purchase/SelectDevForPurchase"
-<h3>SelectDevicesForPurchase</h3>
+@using Microsoft.AspNetCore.Authorization
+@using AppForSEII2526.Web
+@inject AppForSEII2526APIClient apiclient
+@inject ILogger<SelectDevicesForPurchase> logger
+@inject PurchaseStateContainer purchaseState
+@inject NavigationManager navigation
 
+@*@attribute [Authorize]*@
+
+<h3>Select Devices For Purchase</h3>
+
+<div class="container-fluid">
+    <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+        <p id="ErrorsShown">Errors: @errors</p>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <div class="row">
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Name</span>
+                        <input type="text"
+                               id="inputName"
+                               @bind=deviceName
+                               class="form-control"
+                               placeholder="Device name"
+                               aria-label="Name"
+                               aria-describedby="basic-addon1">
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Brand</span>
+                        <select class="form-select"
+                                aria-label="Default select"
+                                @bind="deviceBrandSelected"
+                                @bind:after="OnBrandChanged"
+                                id="selectBrand">
+                            @foreach (string brandName in brandsNames)
+                            {
+                                <option value="@brandName" id="brandNameSelected_@brandName">@brandName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <button type="button"
+                            class="btn btn-primary"
+                            @onclick="@SearchDevices"
+                            id="searchDevices">
+                        Search devices
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                @if (devices == null)
+                {
+                    <p>Loading devices....</p>
+                }
+                else
+                {
+                    <div class="mh-100 table-responsive">
+                        <table class="table table-condensed table-hover" id="TableOfDevices">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>Color</th>
+                                    <th>Price For Purchase</th>
+                                    <th>Add</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var device in devices)
+                                {
+                                    <tr id="DeviceData_@device.Nombre">
+                                        <td>@device.Nombre</td>
+                                        <td>@device.Marca</td>
+                                        <td>@device.Modelo</td>
+                                        <td>@device.Color</td>
+                                        <td>@device.Precio</td> 
+                                        <td>
+                                            <button class="btn btn-outline-secondary"
+                                                    id="deviceToPurchase_@device.Nombre"
+                                                    @onclick="@(() => AddDevice(device))">
+                                                Add
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-2" hidden="@hidePurchaseCart">
+            <div class="row">
+                <h3>Shopping Cart</h3>
+            </div>
+
+            @foreach (PurchaseItemDTO item in purchase.PurchaseItems)
+            {
+                <div class="row">
+                    <button type="button"
+                            class="btn btn-light"
+                            id="removeDevice_@item.DeviceID"
+                            @onclick="@(() => RemovePurchaseItem(item))">
+                        x @item.Brand @item.Model - @item.Price€
+                    </button>
+                </div>
+            }
+
+            <div class="row mt-2">
+                <strong>Total: @TotalPrice € (@TotalQuantity items)</strong>
+
+            </div>
+
+            <div class="row mt-2">
+                <button type="button"
+                        class="btn btn-primary"
+                        id="purchaseDevicesButton"
+                        @onclick="@GoToCreatePurchase">
+                    Purchase devices
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
-    
+    // Filtros de búsqueda
+    private string deviceBrandSelected = "All";
+    private ICollection<string> brandsNames = new List<string>();
+    private string deviceName { get; set; } = string.Empty;
 
+    private IList<DispositivoComprarDTO>? allDevices;
+
+    //dispositivos filtrados
+    private IList<DispositivoComprarDTO>? devices;
+
+    private PurchaseForCreateDTO purchase => purchaseState.Purchase;
+
+    private string errors = "";
+    private bool hideErrors => string.IsNullOrEmpty(errors);
+
+    private bool hidePurchaseCart => purchase.PurchaseItems == null || purchase.PurchaseItems.Count == 0;
+
+    private decimal TotalPrice =>
+        purchase.PurchaseItems == null
+            ? 0m
+            : Convert.ToDecimal(purchase.PurchaseItems.Sum(i => i.Price * i.Quantity));
+
+    private int TotalQuantity =>
+        purchase.PurchaseItems == null
+            ? 0
+            : purchase.PurchaseItems.Sum(i => i.Quantity);
+
+    private void AddDevice(DispositivoComprarDTO device)
+    {
+        purchaseState.AddDeviceToPurchase(device);
+    }
+
+    private void RemovePurchaseItem(PurchaseItemDTO item)
+    {
+        purchaseState.RemovePurchaseItem(item);
+    }
+
+    private async Task OnBrandChanged()
+    {
+        await SearchDevices();
+    }
+
+
+    private async Task SearchDevices()
+    {
+        try
+        {
+            if (allDevices is null)
+            {
+                allDevices = (await apiclient.GetDevicesForBuyingAsync()).ToList();
+            }
+
+            IEnumerable<DispositivoComprarDTO> query = allDevices;
+
+            if (!string.IsNullOrWhiteSpace(deviceName))
+            {
+                query = query.Where(d =>
+                    d.Nombre != null &&
+                    d.Nombre.Contains(deviceName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // Filtro por marca
+            if (!string.IsNullOrWhiteSpace(deviceBrandSelected) && deviceBrandSelected != "All")
+            {
+                query = query.Where(d => d.Marca == deviceBrandSelected);
+            }
+
+            devices = query.ToList();
+            errors = "";
+        }
+        catch (ApiException ex)
+        {
+            logger.LogError($"{DateTime.Now} Error: {ex}");
+            errors = "Error while connecting to the system";
+        }
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            allDevices = (await apiclient.GetDevicesForBuyingAsync()).ToList();
+
+            brandsNames = allDevices
+                .Where(d => !string.IsNullOrEmpty(d.Marca))
+                .Select(d => d.Marca!)
+                .Distinct()
+                .OrderBy(b => b)
+                .ToList();
+
+            brandsNames = new List<string> { "All" }.Concat(brandsNames).ToList();
+
+            await SearchDevices();
+        }
+        catch (ApiException ex)
+        {
+            if (brandsNames == null || brandsNames.Count == 0)
+                brandsNames = new List<string> { "All" };
+
+            errors = "Error while connecting to the system";
+            logger.LogError("Error while getting devices for buying: {ex}", ex);
+        }
+    }
+
+    private void GoToCreatePurchase()
+    {
+        navigation.NavigateTo("/purchases/createpurchase");
+    }
 }
+
