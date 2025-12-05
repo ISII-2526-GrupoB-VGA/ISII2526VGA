@@ -21,8 +21,8 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-//Base de datos
-string? connection2Database = Environment.GetEnvironmentVariable("DBConnection2Use");
+// Selección de base de datos por variable de entorno DBConnection2Use
+string? connection2Database = Environment.GetEnvironmentVariable("DBConnection2Use"); //Esto creo que se debe quedar así
 
 
 switch (connection2Database)
@@ -52,7 +52,7 @@ builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-//relajar contrase�as para pruebas
+//relajar contraseñas para pruebas
 builder.Services.Configure<IdentityOptions>(o =>
 {
     o.Password.RequireDigit = false;
@@ -102,9 +102,9 @@ using (var scope = app.Services.CreateScope())
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         if (connection2Database == "SQLite")
-            db.Database.EnsureCreated();
+            db.Database.EnsureCreated();    //Esto se queda tal cual. Creo
         else
-            db.Database.Migrate();
+            db.Database.Migrate();          //Esto se queda tal cual. Creo 
 
         // Rellenar datos iniciales
         SeedData.Initialize(db, scope.ServiceProvider, logger);
