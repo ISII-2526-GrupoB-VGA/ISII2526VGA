@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AppForSEII2526.API.Controller
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]")] //Esto es la prueba que a nadie salvo a mí le interesa
     [ApiController]
     public class GetReviewsPrueba : ControllerBase
     {
@@ -31,7 +31,7 @@ namespace AppForSEII2526.API.Controller
                     d.CustomerCountry,
                     d.CustomerId,
                     d.ReviewTitle,
-                    d.ApplicationUserId  //¿Pq es un string????
+                    d.ApplicationUserId  
                     ))
                 .ToListAsync();
 

@@ -5,7 +5,7 @@ using AppForSEII2526.API.Data;
 using AppForSEII2526.API.DTOs.PurchaseDTOs;
 using AppForSEII2526.API.Models;
 
-namespace AppForSEII2526.API.Controllers
+namespace AppForSEII2526.API.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -18,7 +18,39 @@ namespace AppForSEII2526.API.Controllers
         {
             _context = context;
             _logger = logger;
+ 
         }
+
+        [HttpGet("diag/users")]
+        public async Task<object> ListUsers()
+        {
+            var users = await _context.ApplicationUsers
+                .OrderBy(u => u.UserName)
+                .Select(u => new { u.Id, u.UserName, u.Email, u.FirstName, u.LastName })
+                .ToListAsync();
+
+            return new { users.Count, Users = users };
+        }
+
+
+
+        
+        [HttpGet("diag/db")]
+        public async Task<object> Diag()
+        {
+            return new
+            {
+                Provider = _context.Database.ProviderName,
+                Cnn = _context.Database.GetDbConnection().ConnectionString,
+                PurchasesCount = await _context.Purchases.CountAsync(),
+                PurchaseIds = await _context.Purchases
+                                           .OrderBy(p => p.id)
+                                           .Select(p => p.id)
+                                           .ToListAsync()
+            };
+        }
+
+
 
         // ---------- GET ----------
         [HttpGet]
@@ -76,9 +108,9 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
         public async Task<ActionResult> CreatePurchase(PurchaseForCreateDTO purchaseForCreate)
         {
-            // Validaciones de negocio simples
+            
             if (purchaseForCreate.PurchaseItems.Count == 0)
-                ModelState.AddModelError("PurchaseItems", "Error! You must include at least one device.");
+                ModelState.AddModelError("PurchaseItems","Error! Hay que incluir un dispositivo");
 
             if (string.IsNullOrWhiteSpace(purchaseForCreate.CustomerFirstName))
                 ModelState.AddModelError("CustomerFirstName", "First name is required");
@@ -87,20 +119,20 @@ namespace AppForSEII2526.API.Controllers
                 ModelState.AddModelError("CustomerLastName", "Last name is required");
 
             var user = await _context.ApplicationUsers
-                .FirstOrDefaultAsync(u => u.UserName == purchaseForCreate.CustomerUserName);
+            .FirstOrDefaultAsync(u => u.UserName == purchaseForCreate.CustomerUserName);
             if (user == null)
-                ModelState.AddModelError("PurchaseApplicationUser", "Error! UserName is not registered.");
+                ModelState.AddModelError("PurchaseApplicationUser", "Error! Nombre de usuario no registrado");
 
             if (ModelState.ErrorCount > 0)
                 return BadRequest(new ValidationProblemDetails(ModelState));
 
-            // IDs de dispositivos desde PurchaseItemDTO (nota: DeviceID)
+            
             var deviceIds = purchaseForCreate.PurchaseItems
                 .Select(i => i.DeviceID)
                 .Distinct()
                 .ToList();
 
-            // Traemos info mínima necesaria de los devices
+            
             var devices = await _context.Devices
                 .Where(d => deviceIds.Contains(d.Id))
                 .Select(d => new
@@ -113,11 +145,13 @@ namespace AppForSEII2526.API.Controllers
                 })
                 .ToListAsync();
 
-            // Construimos la compra usando el PaymentMethod recibido en el DTO
+            
+
+
             var purchase = new Purchase(
                 deliveryAddress: purchaseForCreate.DeliveryAddress,
                 id: 0,
-                paymentMethod: purchaseForCreate.PaymentMethod, // <- del DTO
+                paymentMethod: purchaseForCreate.PaymentMethod, 
                 purchaseDate: DateTime.Now,
                 totalPrice: 0.0,
                 totalQuantity: 0
@@ -133,20 +167,28 @@ namespace AppForSEII2526.API.Controllers
             foreach (var item in purchaseForCreate.PurchaseItems) // item es PurchaseItemDTO
             {
                 var dev = devices.FirstOrDefault(d => d.Id == item.DeviceID);
+                
                 if (dev == null)
                 {
                     ModelState.AddModelError("PurchaseItems", $"Error! DeviceID {item.DeviceID} does not exist.");
                     continue;
                 }
 
-                if (dev.quantityForPurchase < item.Quantity)
+                if (dev.Brand.Contains("Xiaomi") || dev.Brand.Contains("Huawei"))
                 {
-                    ModelState.AddModelError("PurchaseItems",
-                        $"Error! Not enough stock for device {dev.Id}. Requested {item.Quantity}, available {dev.quantityForPurchase}.");
+                    ModelState.AddModelError("PurchaseItems", $"Error: Las tecnologías de estas marcas ya no están disponibles, siguiendo recomendaciones de las autoridades competentes en materia de seguridad.");
                     continue;
                 }
 
-                var unit = dev.priceForPurchase; // precio “congelado” en la línea
+                if (dev.quantityForPurchase < item.Quantity)
+                {
+                    ModelState.AddModelError("PurchaseItems",
+                        $"Error! No hay suficiente stock de este dispositivo. " +
+                        $"Id: {dev.Id}. Pedidos {item.Quantity}, disponibles {dev.quantityForPurchase}.");
+                    continue;
+                }
+
+                var unit = dev.priceForPurchase; 
                 total += unit * item.Quantity;
                 totalQty += item.Quantity;
 
@@ -177,7 +219,7 @@ namespace AppForSEII2526.API.Controllers
                 return Conflict("Error! There was an error while saving your purchase. Please, try again later.");
             }
 
-            // Detalle de respuesta (re-lee datos del device para completar brand/model/color)
+            
             var detail = new PurchaseDetailDTO(
                 purchase.id,
                 purchase.PurchaseDate,
@@ -196,7 +238,7 @@ namespace AppForSEII2526.API.Controllers
                 )).ToList()
             );
 
-            return CreatedAtAction(nameof(GetPurchase), new { id = purchase.id }, detail);
+            return CreatedAtAction(nameof(GetPurchase), new { purchase.id }, detail);
         }
     }
 }

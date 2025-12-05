@@ -1,15 +1,15 @@
-﻿namespace AppForSEII2526.API.DTOs.DeviceDTOs
+﻿namespace AppForSEII2526.API.DTOs.AlquilarDTOs
 {
-    public class DispositivoComprarDTO
+    public class DispositivoAlquilarDTO
     {
-        public DispositivoComprarDTO(int id, string nombre, string marca, string modelo, string color, double precio)
+        public DispositivoAlquilarDTO(int id, string nombre, string marca, string modelo, string color, double precio)
         {
             Id = id;
             Nombre = nombre;
             Marca = marca;
-            Modelo = modelo;   
+            Modelo = modelo;   // <- Model.NameModel
             Color = color;
-            Precio = precio;   
+            Precio = precio;   // <- Device.priceForPurchase
         }
 
         public int Id { get; set; }
@@ -21,7 +21,7 @@
 
         public override bool Equals(object? obj)
         {
-            return obj is DispositivoComprarDTO dto &&
+            return obj is DispositivoAlquilarDTO dto &&
                    Id == dto.Id &&
                    Nombre == dto.Nombre &&
                    Marca == dto.Marca &&

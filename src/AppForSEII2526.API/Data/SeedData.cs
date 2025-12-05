@@ -31,7 +31,7 @@ namespace AppForSEII2526.API.Data
             try { SeedModelsAndDevices(dbContext); }
             catch (Exception ex) { logger.LogError(ex, "Error seeding models/devices"); }
 
-            // 4) Compra de ejemplo (si quieres)
+            // 4) Compra de ejemplo 
             try
             {
                 var user = dbContext.Users.OfType<ApplicationUser>().FirstOrDefault(u => u.UserName == "alicia@example.com");
@@ -86,7 +86,7 @@ namespace AppForSEII2526.API.Data
                 if (result.Succeeded) userManager.AddToRoleAsync(user, roles[1]).Wait();
             }
 
-            // Customer (este es el que usarás en el POST)
+            // Customer
             if (userManager.FindByNameAsync("alicia@example.com").Result == null)
             {
                 var user = new ApplicationUser
@@ -170,11 +170,11 @@ namespace AppForSEII2526.API.Data
                 PurchaseItems = new List<PurchaseItem>()
             };
 
-            // añade 1 línea
+           
             purchase.PurchaseItems.Add(new PurchaseItem
             {
                 DeviceId = anyDevice.Id,
-                Price = anyDevice.priceForPurchase, // congelado
+                Price = anyDevice.priceForPurchase,
                 Quantity = 1,
                 Description = "Compra de prueba"
             });

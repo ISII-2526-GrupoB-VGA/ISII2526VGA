@@ -1,18 +1,18 @@
-namespace AppForSEII2526.API.DTOs.PurchaseDTOs
+﻿namespace AppForSEII2526.API.DTOs.AlquilarDTOs
 {
-    public class PurchaseItemDTO
+    public class AlquilarItemDTO
     {
-        // Para POST
+        // Para POST (entrada)
         [JsonConstructor]
-        public PurchaseItemDTO(int deviceID, int quantity, string? description = "")
+        public AlquilarItemDTO(int deviceID, int quantity, string? description = "")
         {
             DeviceID = deviceID;
             Quantity = quantity;
             Description = description;
         }
 
-        // Para GET
-        public PurchaseItemDTO(int deviceID, string brand, string model, string color,
+        // Para GET (salida)
+        public AlquilarItemDTO(int deviceID, string brand, string model, string color,
                                double price, int quantity, string? description = "")
         {
             DeviceID = deviceID;
@@ -30,14 +30,14 @@ namespace AppForSEII2526.API.DTOs.PurchaseDTOs
         public int Quantity { get; set; }
         public string? Description { get; set; }
 
-       
+        // Solo salida (opcionales en POST)
         public string? Brand { get; set; }
         public string? Model { get; set; }
         public string? Color { get; set; }
         public double Price { get; set; }
 
         public override bool Equals(object? obj) =>
-            obj is PurchaseItemDTO dto &&
+            obj is AlquilarItemDTO dto &&
             DeviceID == dto.DeviceID && Quantity == dto.Quantity &&
             Description == dto.Description && Brand == dto.Brand &&
             Model == dto.Model && Color == dto.Color && Price == dto.Price;
