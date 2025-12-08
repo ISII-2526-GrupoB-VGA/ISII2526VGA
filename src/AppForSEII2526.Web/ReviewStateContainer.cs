@@ -1,64 +1,87 @@
-﻿using AppForSEII2526.API.DTOs.DeviceDTOs;
-using AppForSEII2526.API.Models;
-
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AppForSEII2526.Web.OpenAPI; //
 
 namespace AppForSEII2526.Web
 {
+    // Servicio inyectable para mantener el estado de la reseña en el cliente Blazor
     public class ReviewStateContainer
     {
+        // DTO principal usado por tu UI (Swagger/NSwag)
+        public ReviewForCreateDTO Review { get; private set; }
 
-
-        //Creamos una instancia de Review cuando se crea una instancia de ReviewStateContainer
-        //Se crea reseña vacía
-        public ReviewForCreateDTO Review { get; private set; } = new ReviewForCreateDTO()
+        public ReviewStateContainer()
         {
-            ReviewItems = new List<ReviewItemForCreateDTO>()
-        };
-
-        public event Action? OnChange; //¿Esto pa q vrgs sirve?
-
-        private void NotifyStateChanged() => OnChange?.Invoke(); //Tampoco se pa q sirve
-
-
-        //Añadir review a lista 
-        public void AddDeviceToReview(DeviceForReviewDTO device)
-        {
-            if  (!Review.ReviewItems.Any(ri => ri.DeviceId == device.Id)){
-                //Lo añadimos x si no está en la lista
-                Review.ReviewItems.Add(new ReviewItemForCreateDTO()
-                {
-
-                    DeviceId = device.Id,
-                    Comment = string.Empty,
-                    Rating = 0
-                });
-            }
-
-        }
-
-        //Eliminar un dispositivo del carrito
-        public void RemoveDeviceFromReview(ReviewItemForCreateDTO item)
-        {
-            Review.ReviewItems.Remove(item);
-            NotifyStateChanged(); //No se si debo ponerlo o quitarlo
-        }
-
-
-        //we eliminate all the movies from the list
-        public void ClearReviewCart()
-        {
-            Review.ReviewItems.Clear();
-            NotifyStateChanged();
-        }
-
-        public void ReviewProcessed()
-        {
-            //Creamos nuevo objeto sin datos despues de finalizar la review
-            Review = new ReviewForCreateDTO()
+            Review = new ReviewForCreateDTO
             {
+                CustomerCountry = string.Empty,
+                CustomerName = string.Empty,
+                ReviewTitle = string.Empty,
+                // inicializa la lista vacía para evitar null checks por todas partes
                 ReviewItems = new List<ReviewItemForCreateDTO>()
             };
         }
 
+        public event Action? OnChange;
+
+        private void NotifyStateChanged() => OnChange?.Invoke();
+
+        // Añade un dispositivo a la reseña (desde el DTO devuelto por el cliente OpenAPI)
+        public void AddDeviceToReview(ReviewItemDTO device)
+        {
+            if (device == null) return;
+
+            if (Review.ReviewItems == null)
+                Review.ReviewItems = new List<ReviewItemForCreateDTO>();
+
+            // evitar duplicados por DeviceId
+            if (Review.ReviewItems.Any(x => x.DeviceId == device.Id))
+                return;
+
+            // Comentario por defecto que cumple la validación del controlador ("Reseña para ...")
+            var defaultComment = $"Reseña para {device.Name ?? "dispositivo"}";
+
+            var item = new ReviewItemForCreateDTO
+            {
+                DeviceId = device.Id,
+                Comment = defaultComment,
+                // rating por defecto (puedes cambiarlo)
+                Rating = 3.0f
+            };
+
+            Review.ReviewItems.Add(item);
+            NotifyStateChanged();
+        }
+
+        // Elimina un item de la reseña (recibe el DTO de creación, que tu componente ya maneja)
+        public void RemoveDeviceFromReview(ReviewItemForCreateDTO item)
+        {
+            if (item == null || Review.ReviewItems == null) return;
+
+            var existing = Review.ReviewItems.FirstOrDefault(x => x.DeviceId == item.DeviceId);
+            if (existing != null)
+            {
+                Review.ReviewItems.Remove(existing);
+                NotifyStateChanged();
+            }
+        }
+
+        // Vacía el carrito / reseña (útil tras crear la reseña)
+        public void ClearReview()
+        {
+            Review = new ReviewForCreateDTO
+            {
+                CustomerCountry = string.Empty,
+                CustomerName = string.Empty,
+                ReviewTitle = string.Empty,
+                ReviewItems = new List<ReviewItemForCreateDTO>()
+            };
+            NotifyStateChanged();
+        }
+
+        // Opcional: obtener lista de ids
+        public List<int> GetDeviceIds() =>
+            Review.ReviewItems?.Select(i => i.DeviceId).ToList() ?? new List<int>();
     }
 }

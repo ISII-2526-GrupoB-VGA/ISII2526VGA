@@ -1,0 +1,202 @@
+﻿@page "/Review/selectDeviceForReview"
+
+@using AppForSEII2526.Web.OpenAPI
+@inject AppForSEII2526APIClient apiclient //
+@inject ReviewStateContainer reviewState
+@inject NavigationManager navigation
+
+<h3>Select Devices For Review</h3>
+
+<div class="container-fluid">
+
+    <!-- ZONA DE ERRORES -->
+    <div class="row alert alert-danger" role="alert" hidden="@HideErrors">
+        <p>@Errors</p>
+    </div>
+
+    <div class="row">
+
+        <!-- COLUMNA IZQUIERDA: filtros + tabla -->
+        <div class="col-8">
+
+            <!-- FILTROS -->
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="input-group">
+                        <span class="input-group-text">Name</span>
+                        <input class="form-control"
+                               placeholder="Device name"
+                               @bind="filterName" />
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="input-group">
+                        <span class="input-group-text">Brand</span>
+                        <select class="form-select" @bind="filterBrand">
+                            <option value="All">All</option>
+                            @foreach (var b in brands)
+                            {
+                                <option value="@b">@b</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <button class="btn btn-primary" @onclick="SearchDevices">
+                        Search
+                    </button>
+                </div>
+            </div>
+
+            <!-- TABLA DE DISPOSITIVOS (Paso 2) -->
+            <div class="row">
+                @if (devices == null)
+                {
+                    <p>Loading devices...</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>Color</th>
+                                    <th>Year</th>
+                                    <th>Add</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var d in devices)
+                                {
+                                    <tr>
+                                        <td>@d.Name</td>
+                                        <td>@d.Brand</td>
+                                        <td>@d.Model</td>
+                                        <td>@d.Color</td>
+                                        <td>@d.Year</td>
+                                        <td>
+                                            <button class="btn btn-outline-secondary"
+                                                    @onclick="() => AddDevice(d)">
+                                                Add
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+        </div>
+
+        <!-- CARRITO -->
+        <div class="col-3" hidden="@HideCart">
+            <h3>Review Cart</h3>
+
+            @foreach (var item in review.ReviewItems)
+            {
+                <div class="row">
+                    <button class="btn btn-light mb-1"
+                            @onclick="() => RemoveDevice(item)">
+                        x Device @item.DeviceId
+                    </button>
+                </div>
+            }
+
+            <button class="btn btn-primary mt-3"
+                    @onclick="GoToStep5">
+                Review devices
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    // Dispositivos cargados desde la API
+    private IList<ReviewItemDTO>? devices;
+
+    // Lista de marcas para el filtro
+    private List<string> brands = new();
+
+    private string filterName = "";
+    private string filterBrand = "All";
+
+    private string Errors = "";
+    private bool HideErrors => string.IsNullOrEmpty(Errors);
+
+    private ReviewForCreateDTO review => reviewState.Review;
+
+    private bool HideCart => review.ReviewItems.Count == 0;
+
+    // -- CARGA INICIAL (Paso 2)
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            devices = (await apiclient.GetDevicesForReviewAsync()).ToList();
+
+            brands = devices
+                .Select(d => d.Brand)
+                .Distinct()
+                .OrderBy(b => b)
+                .ToList();
+        }
+        catch
+        {
+            Errors = "Error loading devices.";
+        }
+    }
+
+    // -- Añadir dispositivo al carrito
+    private void AddDevice(ReviewItemDTO d)
+    {
+        reviewState.AddDeviceToReview(d);
+    }
+
+    // -- Eliminar dispositivo del carrito
+    private void RemoveDevice(ReviewItemForCreateDTO item)
+    {
+        reviewState.RemoveDeviceFromReview(item);
+    }
+
+    // -- Ir al paso 5 (rellenar reseña)
+    private void GoToStep5()
+    {
+        navigation.NavigateTo("/review/create");
+    }
+
+    // -- FILTRO DE DISPOSITIVOS
+    private async Task SearchDevices()
+    {
+        try
+        {
+            devices = (await apiclient.GetDevicesForReviewAsync()).ToList();
+
+            if (!string.IsNullOrWhiteSpace(filterName))
+                devices = devices
+                    .Where(d => d.Name.Contains(filterName, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+            if (filterBrand != "All")
+                devices = devices
+                    .Where(d => d.Brand == filterBrand)
+                    .ToList();
+
+            Errors = "";
+        }
+        catch
+        {
+            Errors = "Error searching devices.";
+        }
+    }
+
+}
