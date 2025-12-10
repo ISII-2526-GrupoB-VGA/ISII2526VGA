@@ -1,9 +1,15 @@
 ﻿@page "/purchase/SelectDevForPurchase"
 @using Microsoft.AspNetCore.Authorization
+@using AppForSEII2526.Web.OpenAPI
+
 @using AppForSEII2526.Web
 @inject AppForSEII2526APIClient apiclient
 @inject ILogger<SelectDevicesForPurchase> logger
 @inject PurchaseStateContainer purchaseState
+@inject NavigationManager navigation
+
+@inject AppForSEII2526APIClient apiclient //
+@inject ReviewStateContainer reviewState
 @inject NavigationManager navigation
 
 @*@attribute [Authorize]*@
