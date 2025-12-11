@@ -8,7 +8,7 @@
 @inject PurchaseStateContainer purchaseState
 @inject NavigationManager navigation
 
-@* @inject AppForSEII2526APIClient apiclient // *@
+@inject AppForSEII2526APIClient apiclient
 @inject ReviewStateContainer reviewState
 @* @inject NavigationManager navigation *@
 
@@ -142,14 +142,12 @@
 </div>
 
 @code {
-    // Filtros de búsqueda
     private string deviceBrandSelected = "All";
     private ICollection<string> brandsNames = new List<string>();
     private string deviceName { get; set; } = string.Empty;
 
     private IList<DispositivoComprarDTO>? allDevices;
 
-    //dispositivos filtrados
     private IList<DispositivoComprarDTO>? devices;
 
     private PurchaseForCreateDTO purchase => purchaseState.Purchase;
@@ -203,7 +201,6 @@
                     d.Nombre.Contains(deviceName, StringComparison.OrdinalIgnoreCase));
             }
 
-            // Filtro por marca
             if (!string.IsNullOrWhiteSpace(deviceBrandSelected) && deviceBrandSelected != "All")
             {
                 query = query.Where(d => d.Marca == deviceBrandSelected);
@@ -212,14 +209,15 @@
             devices = query.ToList();
             errors = "";
         }
-        catch (ApiException ex)
+        catch (System.Exception ex)
         {
-            logger.LogError($"{DateTime.Now} Error: {ex}");
-            errors = "Error while connecting to the system";
+            logger.LogError(ex, "Error while connecting to the system");
+            errors = $"Error while connecting to the system: {ex.Message}";
         }
 
         StateHasChanged();
     }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -238,15 +236,16 @@
 
             await SearchDevices();
         }
-        catch (ApiException ex)
+        catch (System.Exception ex)
         {
             if (brandsNames == null || brandsNames.Count == 0)
                 brandsNames = new List<string> { "All" };
 
-            errors = "Error while connecting to the system";
-            logger.LogError("Error while getting devices for buying: {ex}", ex);
+            errors = $"Error while connecting to the system: {ex.Message}";
+            logger.LogError(ex, "Error while getting devices for buying");
         }
     }
+
 
     private void GoToCreatePurchase()
     {

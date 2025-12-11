@@ -1,0 +1,105 @@
+﻿@page "/purchase/detailpurchase"
+
+@using AppForSEII2526.Web.OpenAPI
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AppForSEII2526APIClient apiclient
+
+
+
+<h3>Purchase details</h3>
+
+@if (purchase == null)
+{
+    <p>@error</p>
+}
+else
+{
+    <table class="table table-borderless table-sm">
+        <tr>
+            <th>Customer</th>
+            <td id="CustomerFullName">@purchase.CustomerFullName</td>
+        </tr>
+        <tr>
+            <th>Delivery Address</th>
+            <td id="DeliveryAddress">@purchase.DeliveryAddress</td>
+        </tr>
+        <tr>
+            <th>Purchase Date</th>
+            <td id="PurchaseDate">@purchase.PurchaseDate.ToString("dd/MM/yyyy HH:mm:ss")</td>
+        </tr>
+        <tr>
+            <th>Total items</th>
+            <td id="TotalQuantity">@purchase.TotalQuantity</td>
+        </tr>
+        <tr>
+            <th>Total price</th>
+            <td id="TotalPriceHeader">@purchase.TotalPrice €</td>
+        </tr>
+    </table>
+
+    <h4>Purchased devices</h4>
+
+    <table class="table" id="PurchasedDevices">
+        <thead>
+            <tr>
+                <th scope="col">Brand</th>
+                <th scope="col">Model</th>
+                <th scope="col">Color</th>
+                <th scope="col">Price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (PurchaseItemDTO item in purchase.Items)
+            {
+                <tr id="PurchaseItem_@item.DeviceID">
+                    <td>@item.Brand</td>
+                    <td>@item.Model</td>
+                    <td>@item.Color</td>
+                    <td>@item.Price €</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Description</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th scope="row" colspan="3" class="text-end">Total</th>
+                <td id="TotalPriceFooter">@purchase.TotalPrice €</td>
+                <td id="TotalQuantityFooter">@purchase.TotalQuantity</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+}
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int PurchaseId { get; set; }
+
+    private PurchaseDetailDTO? purchase;
+    private string error = string.Empty;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            purchase = await apiclient.GetPurchaseAsync(PurchaseId);
+        }
+        catch (ApiException)
+        {
+            purchase = null;
+        }
+
+        if (purchase == null)
+        {
+            error = $"Error! There is no purchase with id={PurchaseId}";
+        }
+    }
+}
