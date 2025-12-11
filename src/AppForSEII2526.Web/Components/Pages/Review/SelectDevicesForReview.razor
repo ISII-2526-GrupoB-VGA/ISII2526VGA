@@ -9,8 +9,18 @@
 
 <div class="container-fluid">
 
+    <!-- bloque de depuración: visible solo si debugJson no está vacío -->
+    @if (!string.IsNullOrWhiteSpace(debugJson)) //Borrar este bloque luego. Es para depuración
+    {
+        <h5>DEBUG: JSON devuelto por la API</h5>
+        <pre style="background:#f6f8fa; padding:10px; border-radius:6px; overflow:auto; max-height:400px;">
+    @debugJson
+        </pre>
+    }
+
+
     <!-- ZONA DE ERRORES -->
-    <div class="row alert alert-danger" role="alert" hidden="@HideErrors">
+    <div class="row alert alert-danger" role="alert" hidden="@HideErrors"> 
         <p>@Errors</p>
     </div>
 
@@ -29,11 +39,11 @@
                                @bind="filterName" />
                     </div>
                 </div>
-
-                <div class="col">
+                @* El desplegable de ni lo sé *@
+                @* <div class="col">
                     <div class="input-group">
                         <span class="input-group-text">Brand</span>
-                        <select class="form-select" @bind="filterBrand">
+                        <select class="form-select" @bind="filterBrand"> 
                             <option value="All">All</option>
                             @foreach (var b in brands)
                             {
@@ -41,7 +51,22 @@
                             }
                         </select>
                     </div>
+                </div> *@
+
+                @* El desplegable q he hecho de años *@
+                <div class="col">
+                    <div class="input-group">
+                        <span class="input-group-text">Year</span>
+                        <select class="form-select" @bind="filterYear">
+                            <option value="All">All</option>
+                            @foreach (var y in years)
+                            {
+                                <option value="@y">@y</option>
+                            }
+                        </select>
+                    </div>
                 </div>
+
 
                 <div class="col">
                     <button class="btn btn-primary" @onclick="SearchDevices">
@@ -74,8 +99,8 @@
                                 @foreach (var d in devices)
                                 {
                                     <tr>
-                                        <td>@d.Name</td>
-                                        <td>@d.Brand</td>
+                                        <td>@d.Brand</td>  @* //antes name *@
+                                        <td>@d.Name</td> @* //antes Brand*@
                                         <td>@d.Model</td>
                                         <td>@d.Color</td>
                                         <td>@d.Year</td>
@@ -120,15 +145,19 @@
 </div>
 
 @code {
+    private string debugJson = ""; //Para depuración. Luego borrar
 
     // Dispositivos cargados desde la API
     private IList<ReviewItemDTO>? devices;
 
     // Lista de marcas para el filtro
     private List<string> brands = new();
+    private List<string> years = new();
 
     private string filterName = "";
     private string filterBrand = "All";
+    private string filterYear = "All";
+
 
     private string Errors = "";
     private bool HideErrors => string.IsNullOrEmpty(Errors);
@@ -144,11 +173,28 @@
         {
             devices = (await apiclient.GetDevicesForReviewAsync()).ToList();
 
+            //Linea depuración. Guarda el JSON. Luego borrar
+            var options = new System.Text.Json.JsonSerializerOptions 
+            { 
+                WriteIndented = true,
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase //NPI de q es esto
+            };
+            debugJson = System.Text.Json.JsonSerializer.Serialize(devices, options); //Tb borrar luego este bloque
+
+
             brands = devices
-                .Select(d => d.Brand)
+                .Select(d => d.Brand) //Donde pone d.Name, antes ponia d.brand
                 .Distinct()
                 .OrderBy(b => b)
                 .ToList();
+
+            years = devices
+                .Select(d => d.Year.ToString())
+                .Distinct()
+                .OrderBy(y => y)
+                .ToList();
+
+
         }
         catch
         {
@@ -181,14 +227,21 @@
         {
             devices = (await apiclient.GetDevicesForReviewAsync()).ToList();
 
+            //Filtro por nombre
             if (!string.IsNullOrWhiteSpace(filterName))
                 devices = devices
                     .Where(d => d.Name.Contains(filterName, StringComparison.OrdinalIgnoreCase))
                     .ToList();
+            // Filtro por narca o yks. Seguramente habra q borrarlo
+            // if (filterBrand != "All")
+            //     devices = devices
+            //         .Where(d => d.Name == filterBrand) Antes ponía en vez de d.Name ponía d.Brand
+            //         .ToList();
 
-            if (filterBrand != "All")
+            //filtro por año
+            if (filterYear != "All")
                 devices = devices
-                    .Where(d => d.Brand == filterBrand)
+                    .Where(d => d.Year.ToString() == filterYear)
                     .ToList();
 
             Errors = "";
