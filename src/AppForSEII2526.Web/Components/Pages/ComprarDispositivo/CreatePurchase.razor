@@ -1,0 +1,263 @@
+﻿@page "/purchases/createpurchase"
+@using AppForSEII2526.Web.OpenAPI
+@using AppForSEII2526.Web.Components.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject NavigationManager navigation
+@inject AppForSEII2526APIClient apiclient
+@inject ILogger<CreatePurchase> logger
+@inject PurchaseStateContainer purchaseState
+
+
+<h3>Create Purchase</h3>
+
+<EditForm Model="purchase" OnValidSubmit="OpenDialog">
+    <div class="row">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="row alert alert-danger" />
+    </div>
+    <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+        <p id="ErrorsShown">Errors: @messageError</p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="purchase.CustomerFirstName"
+                           class="form-control"
+                           id="FirstName" />
+                <label for="FirstName">Name </label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="purchase.CustomerLastName"
+                           class="form-control"
+                           id="LastName" />
+                <label for="LastName">Surname </label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="purchase.DeliveryAddress"
+                           class="form-control"
+                           id="DeliveryAddress" />
+                <label for="DeliveryAddress">Delivery Address</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2">
+        <div class="col-md">
+            <div class="form-floating">
+                <InputSelect class="form-select"
+                             @bind-Value="purchase.PaymentMethod"
+                             id="PaymentMethod">
+                    <option value="@PaymentMethodType.CreditCard" default>CreditCard</option>
+                    <option value="@PaymentMethodType.PayPal">PayPal</option>
+                    <option value="@PaymentMethodType.Cash">Cash</option>
+                </InputSelect>
+                <label for="PaymentMethod">Payment Method</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating">
+                <button class="btn btn-primary"
+                        type="submit"
+                        id="Submit"
+                        disabled="@purchaseButtonDisabled">
+                    Confirm purchase
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <h4>Purchase detail</h4>
+    <p>
+        <b>Total price:</b> @TotalCost €
+        <button class="btn btn-outline-primary"
+                type="button"
+                @onclick="ModifyPurchaseItems"
+                id="ModifyDevices">
+            Modify devices
+        </button>
+    </p>
+
+    <div class="mh-100 table-responsive">
+        <table class="table table-condensed table-hover" id="TableOfPurchaseItems">
+            <thead>
+                <tr>
+                    <th>Brand</th>
+                    <th>Model</th>
+                    <th>Color</th>
+                    <th>Unit Price</th>
+                    <th>Quantity</th>
+                    <th>Description (optional)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in purchase.PurchaseItems)
+                {
+                    <tr id="PurchaseItem_@item.DeviceID">
+                        <td>@item.Brand</td>
+                        <td>@item.Model</td>
+                        <td>@item.Color</td>
+                        <td>@item.Price €</td>
+                        <td>
+                            <InputNumber @bind-Value="item.Quantity"
+                                         class="form-control"
+                                         id="@($"qty_{item.DeviceID}")" />
+                        </td>
+                        <td>
+                            <InputText @bind-Value="item.Description"
+                                       class="form-control"
+                                       id="@($"description_{item.DeviceID}")" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</EditForm>
+
+@if (DialogIsOpen)
+{
+    <Dialog Caption="Purchase devices"
+            Message="Do you want to proceed to purchase the selected devices?"
+            OnClose="@OnDialogClose"
+            Type=Dialog.Category.SaveNot>
+    </Dialog>
+}
+
+@code {
+    private string messageError = "";
+    private bool hideErrors { get { return messageError.Length == 0; } }
+
+    // purchaseButton will be disabled if there are no devices in the cart
+    private bool purchaseButtonDisabled
+    {
+        get
+        {
+            return (purchase.PurchaseItems == null || purchase.PurchaseItems.Count == 0);
+        }
+    }
+
+    private bool DialogIsOpen;
+
+    private decimal TotalCost
+    {
+        get
+        {
+            double total = purchase.PurchaseItems.Sum(pi => pi.Price * pi.Quantity);
+            return Convert.ToDecimal(total);
+        }
+    }
+
+    private PurchaseForCreateDTO purchase => purchaseState.Purchase;
+
+    private void ModifyPurchaseItems()
+    {
+        navigation.NavigateTo("/purchase/SelectDevForPurchase");
+    }
+
+    private void OpenDialog()
+    {
+        DialogIsOpen = true;
+    }
+
+    private async Task OnDialogClose(bool isOk)
+    {
+        DialogIsOpen = false;
+
+        if (isOk)
+        {
+            // Process the data introduced by the user if they are valid
+            if (purchase.PurchaseItems != null && purchase.PurchaseItems.Count > 0)
+            {
+                try
+                {
+                    var created = await apiclient.CreatePurchaseAsync(purchase);
+                    purchaseState.PurchaseProcessed();
+                    navigation.NavigateTo($"/purchase/detailpurchase?PurchaseId={created.Id}");
+                }
+                catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
+                {
+                    if (apiexceptionvalidation.Result?.Errors?.Values != null)
+                    {
+                        messageError = "";
+                        foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
+                        {
+                            messageError = string.Join("(*) ",
+                                messageError,
+                                string.Join(" (*) ", errors));
+                        }
+                    }
+                }
+                catch (ApiException apiexception)
+                {
+                    // we need to inform user that there was some other error while processing the request
+                    messageError = "Error while processing your request, please try again later!";
+                    logger.LogError(apiexception, "Error while creating purchase");
+                }
+                catch (System.Exception ex)
+                {
+                    messageError = $"Unexpected error: {ex.Message}";
+                    logger.LogError(ex, "Unexpected error while creating purchase");
+                }
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+
+            if (user is not null)
+            {
+                if (user.Identity is not null && user.Identity.IsAuthenticated)
+                {
+                    purchase.CustomerUserName = user.Identity.Name ?? "";
+                }
+            }
+
+            purchase.CustomerFirstName = purchase.CustomerFirstName == null ? "" : purchase.CustomerFirstName;
+            purchase.CustomerLastName = purchase.CustomerLastName == null ? "" : purchase.CustomerLastName;
+            purchase.DeliveryAddress = purchase.DeliveryAddress == null ? "" : purchase.DeliveryAddress;
+        }
+
+        if (string.IsNullOrWhiteSpace(purchase.CustomerUserName))
+        {
+            purchase.CustomerUserName = "alicia@example.com";
+        }
+
+        if (!Enum.IsDefined(typeof(PaymentMethodType), purchase.PaymentMethod) ||
+            purchase.PaymentMethod == default)
+        {
+            purchase.PaymentMethod = PaymentMethodType.CreditCard;
+        }
+
+        if (purchase.PurchaseItems != null)
+        {
+            foreach (var item in purchase.PurchaseItems)
+            {
+                if (item.Quantity <= 0)
+                {
+                    item.Quantity = 1;
+                }
+
+                if (item.Description == null)
+                {
+                    item.Description = "";
+                }
+            }
+        }
+    }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+}
