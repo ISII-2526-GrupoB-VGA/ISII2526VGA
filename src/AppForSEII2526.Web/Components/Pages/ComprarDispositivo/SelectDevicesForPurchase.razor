@@ -1,18 +1,15 @@
 ﻿@page "/purchase/SelectDevForPurchase"
 @using Microsoft.AspNetCore.Authorization
 @using AppForSEII2526.Web.OpenAPI
-
 @using AppForSEII2526.Web
+
 @inject AppForSEII2526APIClient apiclient
 @inject ILogger<SelectDevicesForPurchase> logger
 @inject PurchaseStateContainer purchaseState
 @inject NavigationManager navigation
-
-@inject AppForSEII2526APIClient apiclient
 @inject ReviewStateContainer reviewState
-@* @inject NavigationManager navigation *@
 
-@*@attribute [Authorize]*@
+@* @attribute [Authorize] *@
 
 <h3>Select Devices For Purchase</h3>
 
@@ -39,15 +36,15 @@
 
                 <div class="col">
                     <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1">Brand</span>
+                        <span class="input-group-text" id="basic-addon1">Color</span>
                         <select class="form-select"
                                 aria-label="Default select"
-                                @bind="deviceBrandSelected"
-                                @bind:after="OnBrandChanged"
-                                id="selectBrand">
-                            @foreach (string brandName in brandsNames)
+                                @bind="deviceColorSelected"
+                                @bind:after="OnColorChanged"
+                                id="selectColor">
+                            @foreach (string color in colorsNames)
                             {
-                                <option value="@brandName" id="brandNameSelected_@brandName">@brandName</option>
+                                <option value="@color" id="colorSelected_@color">@color</option>
                             }
                         </select>
                     </div>
@@ -90,7 +87,7 @@
                                         <td>@device.Marca</td>
                                         <td>@device.Modelo</td>
                                         <td>@device.Color</td>
-                                        <td>@device.Precio</td> 
+                                        <td>@device.Precio</td>
                                         <td>
                                             <button class="btn btn-outline-secondary"
                                                     id="deviceToPurchase_@device.Nombre"
@@ -126,7 +123,6 @@
 
             <div class="row mt-2">
                 <strong>Total: @TotalPrice € (@TotalQuantity items)</strong>
-
             </div>
 
             <div class="row mt-2">
@@ -142,12 +138,17 @@
 </div>
 
 @code {
-    private string deviceBrandSelected = "All";
-    private ICollection<string> brandsNames = new List<string>();
+    // Filtro por color (antes era marca)
+    private string deviceColorSelected = "All";
+    private ICollection<string> colorsNames = new List<string>();
+
+    // Filtro por nombre
     private string deviceName { get; set; } = string.Empty;
 
+    // Lista completa de dispositivos
     private IList<DispositivoComprarDTO>? allDevices;
 
+    // Lista filtrada
     private IList<DispositivoComprarDTO>? devices;
 
     private PurchaseForCreateDTO purchase => purchaseState.Purchase;
@@ -177,11 +178,10 @@
         purchaseState.RemovePurchaseItem(item);
     }
 
-    private async Task OnBrandChanged()
+    private async Task OnColorChanged()
     {
         await SearchDevices();
     }
-
 
     private async Task SearchDevices()
     {
@@ -194,6 +194,7 @@
 
             IEnumerable<DispositivoComprarDTO> query = allDevices;
 
+            // Filtro por nombre
             if (!string.IsNullOrWhiteSpace(deviceName))
             {
                 query = query.Where(d =>
@@ -201,9 +202,12 @@
                     d.Nombre.Contains(deviceName, StringComparison.OrdinalIgnoreCase));
             }
 
-            if (!string.IsNullOrWhiteSpace(deviceBrandSelected) && deviceBrandSelected != "All")
+            // Filtro por color
+            if (!string.IsNullOrWhiteSpace(deviceColorSelected) && deviceColorSelected != "All")
             {
-                query = query.Where(d => d.Marca == deviceBrandSelected);
+                query = query.Where(d =>
+                    d.Color != null &&
+                    d.Color.Equals(deviceColorSelected, StringComparison.OrdinalIgnoreCase));
             }
 
             devices = query.ToList();
@@ -218,38 +222,37 @@
         StateHasChanged();
     }
 
-
     protected override async Task OnInitializedAsync()
     {
         try
         {
             allDevices = (await apiclient.GetDevicesForBuyingAsync()).ToList();
 
-            brandsNames = allDevices
-                .Where(d => !string.IsNullOrEmpty(d.Marca))
-                .Select(d => d.Marca!)
+            // Colores distintos (antes marcas)
+            colorsNames = allDevices
+                .Where(d => !string.IsNullOrEmpty(d.Color))
+                .Select(d => d.Color!)
                 .Distinct()
-                .OrderBy(b => b)
+                .OrderBy(c => c)
                 .ToList();
 
-            brandsNames = new List<string> { "All" }.Concat(brandsNames).ToList();
+            // Añadimos "All" al principio
+            colorsNames = new List<string> { "All" }.Concat(colorsNames).ToList();
 
             await SearchDevices();
         }
         catch (System.Exception ex)
         {
-            if (brandsNames == null || brandsNames.Count == 0)
-                brandsNames = new List<string> { "All" };
+            if (colorsNames == null || colorsNames.Count == 0)
+                colorsNames = new List<string> { "All" };
 
             errors = $"Error while connecting to the system: {ex.Message}";
             logger.LogError(ex, "Error while getting devices for buying");
         }
     }
 
-
     private void GoToCreatePurchase()
     {
         navigation.NavigateTo("/purchases/createpurchase");
     }
 }
-
