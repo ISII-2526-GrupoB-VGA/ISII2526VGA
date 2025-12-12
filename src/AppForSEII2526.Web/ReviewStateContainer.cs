@@ -39,7 +39,7 @@ namespace AppForSEII2526.Web
             if (Review.ReviewItems.Any(x => x.DeviceId == device.Id))
                 return;
 
-            // Comentario por defecto que cumple la validación del controlador ("Reseña para ...")
+            // Comentario por defecto por lo del examen
             var defaultComment = $"Reseña para {device.Name ?? "dispositivo"}";
 
             var item = new ReviewItemForCreateDTO
@@ -78,6 +78,11 @@ namespace AppForSEII2526.Web
                 ReviewItems = new List<ReviewItemForCreateDTO>()
             };
             NotifyStateChanged();
+        }
+
+        public void ReviewProcessed() //Al final no lo usaré para nada. Seguramente...
+        {
+            ClearReview();
         }
 
         // Opcional: obtener lista de ids
