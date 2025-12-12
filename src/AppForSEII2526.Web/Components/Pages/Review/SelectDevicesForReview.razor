@@ -10,13 +10,13 @@
 <div class="container-fluid">
 
     <!-- bloque de depuración: visible solo si debugJson no está vacío -->
-    @if (!string.IsNullOrWhiteSpace(debugJson)) //Borrar este bloque luego. Es para depuración
+    @* @if (!string.IsNullOrWhiteSpace(debugJson)) //Borrar este bloque luego. Es para depuración
     {
         <h5>DEBUG: JSON devuelto por la API</h5>
         <pre style="background:#f6f8fa; padding:10px; border-radius:6px; overflow:auto; max-height:400px;">
     @debugJson
         </pre>
-    }
+    } *@
 
 
     <!-- ZONA DE ERRORES -->
@@ -33,9 +33,9 @@
             <div class="row mb-3">
                 <div class="col">
                     <div class="input-group">
-                        <span class="input-group-text">Name</span>
+                        <span class="input-group-text">Brand</span>
                         <input class="form-control"
-                               placeholder="Device name"
+                               placeholder="Brand"
                                @bind="filterName" />
                     </div>
                 </div>
