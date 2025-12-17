@@ -10,18 +10,19 @@
 @inject ILogger<CreatePurchase> logger
 @inject PurchaseStateContainer purchaseState
 
-
 <h3>Create Purchase</h3>
 
-<EditForm Model="purchase" OnValidSubmit="OpenDialog">
+<EditForm Model="purchase" OnSubmit="HandleSubmit">
     <div class="row">
         <DataAnnotationsValidator />
         <ValidationSummary class="row alert alert-danger" />
     </div>
+
     <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
         <p id="ErrorsShown">Errors: @messageError</p>
     </div>
 
+    <!-- Datos cliente -->
     <div class="row g-3">
         <div class="col-md">
             <div class="form-floating mb-3">
@@ -49,15 +50,17 @@
         </div>
     </div>
 
+    <!-- Pago + Submit -->
     <div class="row g-2">
         <div class="col-md">
             <div class="form-floating">
                 <InputSelect class="form-select"
-                             @bind-Value="purchase.PaymentMethod"
+                             @bind-Value="paymentMethodSelected"
                              id="PaymentMethod">
-                    <option value="@PaymentMethodType.CreditCard" default>CreditCard</option>
-                    <option value="@PaymentMethodType.PayPal">PayPal</option>
-                    <option value="@PaymentMethodType.Cash">Cash</option>
+                    <option value="">-- Select payment method --</option>
+                    <option value="CreditCard">CreditCard</option>
+                    <option value="PayPal">PayPal</option>
+                    <option value="Cash">Cash</option>
                 </InputSelect>
                 <label for="PaymentMethod">Payment Method</label>
             </div>
@@ -122,6 +125,7 @@
     </div>
 </EditForm>
 
+<!-- Modal confirmación -->
 @if (DialogIsOpen)
 {
     <Dialog Caption="Purchase devices"
@@ -133,27 +137,17 @@
 
 @code {
     private string messageError = "";
-    private bool hideErrors { get { return messageError.Length == 0; } }
+    private bool hideErrors => messageError.Length == 0;
 
-    // purchaseButton will be disabled if there are no devices in the cart
-    private bool purchaseButtonDisabled
-    {
-        get
-        {
-            return (purchase.PurchaseItems == null || purchase.PurchaseItems.Count == 0);
-        }
-    }
+    private string paymentMethodSelected = "";
+
+    private bool purchaseButtonDisabled =>
+        (purchase.PurchaseItems == null || purchase.PurchaseItems.Count == 0);
 
     private bool DialogIsOpen;
 
-    private decimal TotalCost
-    {
-        get
-        {
-            double total = purchase.PurchaseItems.Sum(pi => pi.Price * pi.Quantity);
-            return Convert.ToDecimal(total);
-        }
-    }
+    private decimal TotalCost =>
+        Convert.ToDecimal(purchase.PurchaseItems.Sum(pi => pi.Price * pi.Quantity));
 
     private PurchaseForCreateDTO purchase => purchaseState.Purchase;
 
@@ -170,44 +164,80 @@
     private async Task OnDialogClose(bool isOk)
     {
         DialogIsOpen = false;
+        if (!isOk) return;
 
-        if (isOk)
+        if (purchase.PurchaseItems is null || purchase.PurchaseItems.Count == 0)
+            return;
+
+        try
         {
-            // Process the data introduced by the user if they are valid
-            if (purchase.PurchaseItems != null && purchase.PurchaseItems.Count > 0)
+            var created = await apiclient.CreatePurchaseAsync(purchase);
+            purchaseState.PurchaseProcessed();
+            navigation.NavigateTo($"/purchase/detailpurchase?PurchaseId={created.Id}");
+        }
+        catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
+        {
+            if (apiexceptionvalidation.Result?.Errors?.Values != null)
             {
-                try
+                messageError = "";
+                foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
                 {
-                    var created = await apiclient.CreatePurchaseAsync(purchase);
-                    purchaseState.PurchaseProcessed();
-                    navigation.NavigateTo($"/purchase/detailpurchase?PurchaseId={created.Id}");
-                }
-                catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
-                {
-                    if (apiexceptionvalidation.Result?.Errors?.Values != null)
-                    {
-                        messageError = "";
-                        foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
-                        {
-                            messageError = string.Join("(*) ",
-                                messageError,
-                                string.Join(" (*) ", errors));
-                        }
-                    }
-                }
-                catch (ApiException apiexception)
-                {
-                    // we need to inform user that there was some other error while processing the request
-                    messageError = "Error while processing your request, please try again later!";
-                    logger.LogError(apiexception, "Error while creating purchase");
-                }
-                catch (System.Exception ex)
-                {
-                    messageError = $"Unexpected error: {ex.Message}";
-                    logger.LogError(ex, "Unexpected error while creating purchase");
+                    messageError = string.Join("(*) ",
+                        messageError,
+                        string.Join(" (*) ", errors));
                 }
             }
         }
+        catch (ApiException apiexception)
+        {
+            messageError = "Error while processing your request, please try again later!";
+            logger.LogError(apiexception, "Error while creating purchase");
+        }
+        catch (SystemException ex)
+        {
+            messageError = $"Unexpected error: {ex.Message}";
+            logger.LogError(ex, "Unexpected error while creating purchase");
+        }
+    }
+
+    private void HandleSubmit(EditContext _)
+    {
+        messageError = "";
+
+        if (string.IsNullOrWhiteSpace(purchase.CustomerFirstName) ||
+            string.IsNullOrWhiteSpace(purchase.CustomerLastName))
+        {
+            messageError = "Debes introducir un nombre completo.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(purchase.DeliveryAddress))
+        {
+            messageError = "Debes introducir una dirección de entrega.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(paymentMethodSelected))
+        {
+            messageError = "Debes introducir un método de pago";
+            return;
+        }
+
+        purchase.PaymentMethod = Enum.Parse<PaymentMethodType>(paymentMethodSelected);
+
+        if (purchase.PurchaseItems is null || purchase.PurchaseItems.Count == 0)
+        {
+            messageError = "No hay dispositivos en la compra.";
+            return;
+        }
+
+        if (purchase.PurchaseItems.Any(i => i.Quantity <= 0))
+        {
+            messageError = "Debes introducir una cantidad";
+            return;
+        }
+
+        OpenDialog();
     }
 
     protected override async Task OnInitializedAsync()
@@ -217,17 +247,14 @@
             var authState = await authenticationState;
             var user = authState?.User;
 
-            if (user is not null)
+            if (user?.Identity?.IsAuthenticated == true)
             {
-                if (user.Identity is not null && user.Identity.IsAuthenticated)
-                {
-                    purchase.CustomerUserName = user.Identity.Name ?? "";
-                }
+                purchase.CustomerUserName = user.Identity.Name ?? "";
             }
 
-            purchase.CustomerFirstName = purchase.CustomerFirstName == null ? "" : purchase.CustomerFirstName;
-            purchase.CustomerLastName = purchase.CustomerLastName == null ? "" : purchase.CustomerLastName;
-            purchase.DeliveryAddress = purchase.DeliveryAddress == null ? "" : purchase.DeliveryAddress;
+            purchase.CustomerFirstName ??= "";
+            purchase.CustomerLastName ??= "";
+            purchase.DeliveryAddress ??= "";
         }
 
         if (string.IsNullOrWhiteSpace(purchase.CustomerUserName))
@@ -241,19 +268,14 @@
             purchase.PaymentMethod = PaymentMethodType.CreditCard;
         }
 
+        paymentMethodSelected = purchase.PaymentMethod.ToString();
+
         if (purchase.PurchaseItems != null)
         {
             foreach (var item in purchase.PurchaseItems)
             {
-                if (item.Quantity <= 0)
-                {
-                    item.Quantity = 1;
-                }
-
-                if (item.Description == null)
-                {
-                    item.Description = "";
-                }
+                if (item.Quantity < 0) item.Quantity = 1;
+                item.Description ??= "";
             }
         }
     }
