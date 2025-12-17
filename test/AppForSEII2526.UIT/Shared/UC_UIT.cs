@@ -1,36 +1,31 @@
-﻿using OpenQA.Selenium.Chrome;
+﻿using System;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Support.UI;
+using Xunit.Abstractions;
 
+namespace AppForMovies.UIT.Shared
+{
+    public class UC_UIT : IDisposable
+    {
+        private readonly bool _pipeline = false;
 
-namespace AppForMovies.UIT.Shared {
-    public class UC_UIT : IDisposable {
-
-        private bool _pipeline = false;
-
-        //establish which browser you would like to use
-        //private string _browser = "Chrome";
-        //private string _browser = "Firefox";
-        private string _browser = "Edge";
+        // Browser: "Chrome" | "Firefox" | "Edge"
+        private readonly string _browser = "Chrome";
 
         protected IWebDriver _driver;
         protected readonly ITestOutputHelper _output;
 
+        public string _URI => "https://localhost:7081/";
 
-        public string _URI {
-            get {
-                //set url of your web page 
-                return "https://localhost:7083/";
-
-            }
-        }
-
-        public UC_UIT(ITestOutputHelper output) {
-
-            //it initializes where the errors will be shown
+        public UC_UIT(ITestOutputHelper output)
+        {
             _output = output;
 
-            switch (_browser) {
+            switch (_browser)
+            {
                 case "Firefox":
                     SetUp_FireFox4UIT();
                     break;
@@ -38,89 +33,106 @@ namespace AppForMovies.UIT.Shared {
                     SetUp_EdgeFor4UIT();
                     break;
                 default:
-                    //by default Chrome will be used
                     SetUp_Chrome4UIT();
                     break;
             }
-            //Added to make _Driver wait when an element is not found.
-            //It will wait for a maximum of 50 seconds.
 
-            //maximize the window browser
             _driver.Manage().Window.Maximize();
         }
 
-
-        protected void Initial_step_opening_the_web_page() {
-            _driver.Navigate()
-                .GoToUrl(_URI);
+        protected void Initial_step_opening_the_web_page()
+        {
+            _driver.Navigate().GoToUrl(_URI);
         }
 
-        protected void Perform_login(string email, string password) {
-            _driver.Navigate()
-                    .GoToUrl(_URI + "Account/Login");
-            // _driver.FindElement(By.Id("Input_Email"))
-            //     .SendKeys("elena.navarro@uclm.es");
-            _driver.FindElement(By.Name("Input.Email"))
-                .SendKeys(email);
+        protected void Perform_login(string email, string password)
+        {
+            _driver.Navigate().GoToUrl(_URI + "Account/Login");
 
-            _driver.FindElement(By.Name("Input.Password"))
-                .SendKeys(password);
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(30));
+            wait.Until(d => d.FindElements(By.Name("Input.Email")).Count > 0);
 
-            _driver.FindElement(By.XPath("/html/body/div[1]/main/article/div/div[1]/section/form/div[4]/button"))
-                .Click();
+            var emailInput = _driver.FindElement(By.Name("Input.Email"));
+            emailInput.Clear();
+            emailInput.SendKeys(email);
+
+            var passwordInput = _driver.FindElement(By.Name("Input.Password"));
+            passwordInput.Clear();
+            passwordInput.SendKeys(password);
+
+            // Login submit (evita XPath absoluto)
+            IWebElement submitButton;
+            try
+            {
+                // En el template Identity suele existir
+                submitButton = _driver.FindElement(By.Id("login-submit"));
+            }
+            catch (NoSuchElementException)
+            {
+                // Fallback genérico
+                submitButton = _driver.FindElement(By.CssSelector("form button[type='submit']"));
+            }
+
+            submitButton.Click();
+
+            // Espera a salir de la página de login (si falla, el test seguirá y fallará donde toque)
+            wait.Until(d => !d.Url.Contains("/Account/Login", StringComparison.OrdinalIgnoreCase));
         }
 
-
-        protected void SetUp_Chrome4UIT() {
-            var optionsc = new ChromeOptions {
-                PageLoadStrategy = PageLoadStrategy.Normal,
-                AcceptInsecureCertificates = true
-            };
-            //For pipelines use this option for hiding the browser
-            if (_pipeline) optionsc.AddArgument("--headless");
-
-            _driver = new ChromeDriver(optionsc);
-
-        }
-
-        protected void SetUp_FireFox4UIT() {
-            var optionsff = new FirefoxOptions {
-                PageLoadStrategy = PageLoadStrategy.Normal,
-                AcceptInsecureCertificates = true
-            };
-            //For pipelines use this option for hiding the browser
-            if (_pipeline) optionsff.AddArgument("--headless");
-
-            _driver = new FirefoxDriver(optionsff);
-
-        }
-
-        protected void SetUp_EdgeFor4UIT() {
-            //var edgeDriverService = Microsoft.Edge.SeleniumTools.EdgeDriverService.CreateChromiumService();
-            //var edgeOptions = new Microsoft.Edge.SeleniumTools.EdgeOptions();
-            //edgeOptions.PageLoadStrategy = PageLoadStrategy.Normal;
-            //edgeOptions.UseChromium = true;
-            //if (_pipeline) edgeOptions.AddArguments("--headless");
-
-            //_driver = new Microsoft.Edge.SeleniumTools.EdgeDriver(edgeDriverService, edgeOptions);
-
-            var optionsEdge = new EdgeOptions {
+        protected void SetUp_Chrome4UIT()
+        {
+            var options = new ChromeOptions
+            {
                 PageLoadStrategy = PageLoadStrategy.Normal,
                 AcceptInsecureCertificates = true
             };
 
-            //For pipelines use this option for hiding the browser
-            if (_pipeline) optionsEdge.AddArgument("--headless");
+            if (_pipeline) options.AddArgument("--headless");
 
-            _driver = new EdgeDriver(optionsEdge);
-
+            _driver = new ChromeDriver(options);
         }
 
+        protected void SetUp_FireFox4UIT()
+        {
+            var options = new FirefoxOptions
+            {
+                PageLoadStrategy = PageLoadStrategy.Normal,
+                AcceptInsecureCertificates = true
+            };
 
-        public void Dispose() {
-            _driver.Close();
-            _driver.Dispose();
-            GC.SuppressFinalize(this);
+            if (_pipeline) options.AddArgument("--headless");
+
+            _driver = new FirefoxDriver(options);
+        }
+
+        protected void SetUp_EdgeFor4UIT()
+        {
+            var options = new EdgeOptions
+            {
+                PageLoadStrategy = PageLoadStrategy.Normal,
+                AcceptInsecureCertificates = true
+            };
+
+            if (_pipeline) options.AddArgument("--headless");
+
+            _driver = new EdgeDriver(options);
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                _driver?.Quit();
+            }
+            catch
+            {
+                // Ignorar errores de cierre del navegador
+            }
+            finally
+            {
+                _driver?.Dispose();
+                GC.SuppressFinalize(this);
+            }
         }
     }
 }

@@ -9,8 +9,6 @@
 @inject NavigationManager navigation
 @inject ReviewStateContainer reviewState
 
-@* @attribute [Authorize] *@
-
 <h3>Select Devices For Purchase</h3>
 
 <div class="container-fluid">
@@ -20,6 +18,7 @@
 
     <div class="row">
         <div class="col-8">
+            <!-- Filtros -->
             <div class="row">
                 <div class="col">
                     <div class="input-group mb-3">
@@ -60,6 +59,7 @@
                 </div>
             </div>
 
+            <!-- Tabla -->
             <div class="row">
                 @if (devices == null)
                 {
@@ -104,6 +104,7 @@
             </div>
         </div>
 
+        <!-- Carrito -->
         <div class="col-2" hidden="@hidePurchaseCart">
             <div class="row">
                 <h3>Shopping Cart</h3>
@@ -138,17 +139,12 @@
 </div>
 
 @code {
-    // Filtro por color (antes era marca)
     private string deviceColorSelected = "All";
     private ICollection<string> colorsNames = new List<string>();
 
-    // Filtro por nombre
     private string deviceName { get; set; } = string.Empty;
 
-    // Lista completa de dispositivos
     private IList<DispositivoComprarDTO>? allDevices;
-
-    // Lista filtrada
     private IList<DispositivoComprarDTO>? devices;
 
     private PurchaseForCreateDTO purchase => purchaseState.Purchase;
@@ -159,14 +155,10 @@
     private bool hidePurchaseCart => purchase.PurchaseItems == null || purchase.PurchaseItems.Count == 0;
 
     private decimal TotalPrice =>
-        purchase.PurchaseItems == null
-            ? 0m
-            : Convert.ToDecimal(purchase.PurchaseItems.Sum(i => i.Price * i.Quantity));
+        purchase.PurchaseItems == null ? 0m : Convert.ToDecimal(purchase.PurchaseItems.Sum(i => i.Price * i.Quantity));
 
     private int TotalQuantity =>
-        purchase.PurchaseItems == null
-            ? 0
-            : purchase.PurchaseItems.Sum(i => i.Quantity);
+        purchase.PurchaseItems == null ? 0 : purchase.PurchaseItems.Sum(i => i.Quantity);
 
     private void AddDevice(DispositivoComprarDTO device)
     {
@@ -194,7 +186,6 @@
 
             IEnumerable<DispositivoComprarDTO> query = allDevices;
 
-            // Filtro por nombre
             if (!string.IsNullOrWhiteSpace(deviceName))
             {
                 query = query.Where(d =>
@@ -202,7 +193,6 @@
                     d.Nombre.Contains(deviceName, StringComparison.OrdinalIgnoreCase));
             }
 
-            // Filtro por color
             if (!string.IsNullOrWhiteSpace(deviceColorSelected) && deviceColorSelected != "All")
             {
                 query = query.Where(d =>
@@ -213,7 +203,7 @@
             devices = query.ToList();
             errors = "";
         }
-        catch (System.Exception ex)
+        catch (SystemException ex)
         {
             logger.LogError(ex, "Error while connecting to the system");
             errors = $"Error while connecting to the system: {ex.Message}";
@@ -228,7 +218,6 @@
         {
             allDevices = (await apiclient.GetDevicesForBuyingAsync()).ToList();
 
-            // Colores distintos (antes marcas)
             colorsNames = allDevices
                 .Where(d => !string.IsNullOrEmpty(d.Color))
                 .Select(d => d.Color!)
@@ -236,12 +225,11 @@
                 .OrderBy(c => c)
                 .ToList();
 
-            // Añadimos "All" al principio
             colorsNames = new List<string> { "All" }.Concat(colorsNames).ToList();
 
             await SearchDevices();
         }
-        catch (System.Exception ex)
+        catch (SystemException ex)
         {
             if (colorsNames == null || colorsNames.Count == 0)
                 colorsNames = new List<string> { "All" };
