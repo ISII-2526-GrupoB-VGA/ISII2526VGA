@@ -122,6 +122,143 @@ namespace AppForSEII2526.UIT.CU_Review
         }
 
 
+        [Theory]
+        [InlineData("Elena", "", "Título válido", "Reseña para un dispositivo", 5, "The CustomerCountry field is required.")]
+        [InlineData("Elena", "Spain", "Título válido", "Comentario sin q empiece por reseña", 5, "")]
+        [InlineData("Elena", "Spain", "", "Reseña para un dispositivo", 5,"The ReviewTitle field is required.")]
+        [InlineData("Elena", "Spain", "Título válido", "dispositivo", 5,"")] 
+        [InlineData("Elena", "Spain", "Título válido", "Reseña para un dispositivo", 6, "The field Rating must be between 1 and 5.")]
+        [InlineData("Elena", "Spain", "Título válido", "Reseña para un dispositivo", 0, "")]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC3_6_7_8_10_11_12_InvalidReviewData_ShowError(
+       string username,
+        string country,
+        string reviewTitle,
+        string comment,
+        int rating,
+        string expectedError)
+
+        {
+            // Arrange
+            var createReview = new CreateReviewPO(_driver, _output);
+            InitialStepsForReviewDevice_UIT();
+
+            // Seleccionar 1 dispositivo
+            selectDevices.SeleccionarDevices(new List<string> { deviceId1.ToString() });
+            //Thread.Sleep(4000);
+            selectDevices.GoToReview();
+            //Thread.Sleep(4000);
+
+
+            // Act
+            createReview.FillInReviewInfo(reviewTitle, username, country);
+            //Thread.Sleep(4000);
+            createReview.AddDeviceReviewComent(deviceId1, comment);
+            //Thread.Sleep(4000);
+            createReview.AddDeviceReviewRating(deviceId1, rating);
+            //Thread.Sleep(4000);
+            createReview.PressReviewYourDevices();
+            //Thread.Sleep(4000);
+
+            // Assert
+            Assert.True(
+                
+                createReview.CheckValidationError(expectedError),$"Expected error: {expectedError}"
+
+            );
+        }
+
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC3_9_ModifyDevicesAfterEnteringReviewData()
+        {
+            // Arrange
+            var createReview = new CreateReviewPO(_driver, _output);
+            InitialStepsForReviewDevice_UIT();
+            //Seleccionamos 2 dispositivos
+            selectDevices.SeleccionarDevices(new List<string>{
+                deviceId1.ToString(),
+                deviceId2.ToString()
+            });
+
+            // Vamos a CreateReview
+            selectDevices.GoToReview();
+
+            // Rellenamos datos
+            string reviewTitle = "Reseña para Apple";
+            string customerName = "Elena";
+            string country = "Spain";
+            string comment = "Reseña para un dispositivo";
+            createReview.FillInReviewInfo(reviewTitle, customerName, country);
+            createReview.AddDeviceReviewComent(deviceId1, comment);
+            createReview.AddDeviceReviewRating(deviceId1, 5);
+
+            createReview.ClickModifyDevices();             // Volvemos atrás
+
+            // Eliminamos Device2
+            selectDevices.ModificarCarrito(deviceId2);
+
+            // Volvemos a CreateReview
+            selectDevices.GoToReview();
+
+            // Assert
+            Assert.True(createReview.IsDeviceInReviewTable(deviceId1));
+            Assert.False(createReview.IsDeviceInReviewTable(deviceId2));
+
+            Assert.Equal(reviewTitle, createReview.GetReviewTitle());
+            Assert.Equal(country, createReview.GetCustomerCountry());
+        }
+
+
+
+
+        //        [Fact]
+        //        [Trait("LevelTesting", "Functional Testing")]
+        //        public void UC3_1_CreateReviewSuccessfully()
+        //        {
+        //            // Arrange
+        //            var createReview = new CreateReviewPO(_driver, _output);
+        //            var detailReview = new DetailReviewPO(_driver, _output);
+
+        //            InitialStepsForReviewDevice_UIT();
+
+        //            // Seleccionar dispositivo
+        //            selectDevices.SeleccionarDevices(new List<string> { deviceId1.ToString() });
+        //            selectDevices.GoToReview();
+
+        //            // Rellenar datos
+        //            createReview.FillInReviewInfo(
+        //                "Título película",
+        //                "alicia@example.com",
+        //                "Spain"
+        //            );
+
+        //            createReview.AddDeviceReviewComent(
+        //                deviceId1,
+        //                "Reseña para un dispositivo"
+        //            );
+
+        //            createReview.AddDeviceReviewRating(deviceId1, 5);
+
+        //            createReview.PressReviewYourDevices();
+
+        //            // Assert detalle
+        //            Assert.True(
+        //            detailReview.CheckReviewDetail(
+        //                "Spain",
+        //                "Título película"
+        //            )
+        //);
+
+
+        //            Assert.True(detailReview.IsDeviceShownInDetail(deviceId1));
+        //        }
+
+        //ESE ES EL UNO No voy a enviarlo porque no funciona bien. Luego lo arreglo.
+
+
+
 
 
     }
