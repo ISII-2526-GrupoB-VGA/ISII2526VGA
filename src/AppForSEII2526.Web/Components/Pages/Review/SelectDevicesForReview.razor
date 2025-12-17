@@ -1,143 +1,95 @@
 ﻿@page "/Review/selectDeviceForReview"
 
 @using AppForSEII2526.Web.OpenAPI
-@inject AppForSEII2526APIClient apiclient //
+@using System
+@inject AppForSEII2526APIClient apiclient
+@inject ILogger<SelectDevicesForReview> logger
 @inject ReviewStateContainer reviewState
 @inject NavigationManager navigation
 
 <h3>Select Devices For Review</h3>
 
 <div class="container-fluid">
-
-    <!-- bloque de depuración: visible solo si debugJson no está vacío -->
-    @* @if (!string.IsNullOrWhiteSpace(debugJson)) //Borrar este bloque luego. Es para depuración
-    {
-        <h5>DEBUG: JSON devuelto por la API</h5>
-        <pre style="background:#f6f8fa; padding:10px; border-radius:6px; overflow:auto; max-height:400px;">
-    @debugJson
-        </pre>
-    } *@
-
-
-    <!-- ZONA DE ERRORES -->
-    <div class="row alert alert-danger" role="alert" hidden="@HideErrors"> 
+    <div class="row" hidden="@HideErrors">
         <p>@Errors</p>
     </div>
-
     <div class="row">
-
-        <!-- COLUMNA IZQUIERDA: filtros + tabla -->
         <div class="col-8">
-
-            <!-- FILTROS -->
-            <div class="row mb-3">
+            <div class="row">
                 <div class="col">
-                    <div class="input-group">
-                        <span class="input-group-text">Brand</span>
-                        <input class="form-control"
-                               placeholder="Brand"
-                               @bind="filterName" />
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Brand</span>
+                        <input type="text" id="inputBrand" @bind=deviceBrand class="form-control" placeholder="Brand" aria-label="Brand" aria-describedby="basic-addon1">
                     </div>
                 </div>
-                @* El desplegable de ni lo sé *@
-                @* <div class="col">
-                    <div class="input-group">
-                        <span class="input-group-text">Brand</span>
-                        <select class="form-select" @bind="filterBrand"> 
-                            <option value="All">All</option>
-                            @foreach (var b in brands)
-                            {
-                                <option value="@b">@b</option>
-                            }
-                        </select>
-                    </div>
-                </div> *@
-
-                @* El desplegable q he hecho de años *@
                 <div class="col">
-                    <div class="input-group">
-                        <span class="input-group-text">Year</span>
-                        <select class="form-select" @bind="filterYear">
-                            <option value="All">All</option>
-                            @foreach (var y in years)
-                            {
-                                <option value="@y">@y</option>
-                            }
-                        </select>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Year</span>
+                        <input type="text" id="inputYear" @bind=deviceYear class="form-control" placeholder="Year" aria-label="Year" aria-describedby="basic-addon1">
                     </div>
                 </div>
-
-
                 <div class="col">
-                    <button class="btn btn-primary" @onclick="SearchDevices">
-                        Search
+                    <button type="button"
+                            class="btn btn-primary"
+                            @onclick=@SearchDevices
+                            id="searchDevices">
+                        Search devices
                     </button>
                 </div>
             </div>
-
-            <!-- TABLA DE DISPOSITIVOS (Paso 2) -->
             <div class="row">
                 @if (devices == null)
                 {
-                    <p>Loading devices...</p>
+                    <p>Loading devices....</p>
                 }
                 else
                 {
-                    <div class="table-responsive">
-                        <table class="table table-hover">
+                    <div class="mh-100 table-responsive">
+                        <table class="table table-condensed table-hover" id="TableOfDevices">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
                                     <th>Brand</th>
-                                    <th>Model</th>
                                     <th>Color</th>
+                                    <th>Name</th>
                                     <th>Year</th>
-                                    <th>Add</th>
+                                    <th>Model</th>
+                                    <th>Añadir a carrito</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var d in devices)
+                                @foreach (var device in devices)
                                 {
-                                    <tr>
-                                        <td>@d.Brand</td>  @* //antes name *@
-                                        <td>@d.Name</td> @* //antes Brand*@
-                                        <td>@d.Model</td>
-                                        <td>@d.Color</td>
-                                        <td>@d.Year</td>
+                                    <tr id="DeviceData_@device.Id">
+                                        <td>@device.Brand</td>
+                                        <td>@device.Color</td>
+                                        <td>@device.Name</td>
+                                        <td>@GetDeviceYear(device)</td>
+                                        <td>@device.Model</td>
                                         <td>
-                                            <button class="btn btn-outline-secondary"
-                                                    @onclick="() => AddDevice(d)">
-                                                Add
-                                            </button>
+                                            <button class="btn btn-outline-secondary" id="deviceToReview_@device.Id" @onclick="@(() => AddDevice(device))">Add</button>
                                         </td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
                     </div>
+
                 }
             </div>
-
         </div>
-
-        <!-- CARRITO -->
-        <div class="col-3" hidden="@HideCart">
-            <h3>Review Cart</h3>
-
-            @foreach (var item in review.ReviewItems)
+        <div class="col-2" hidden="@HideCart">
+            <div class="row">
+                <button class="btn btn-outline-primary" id="showReviewCart" @onclick="@ToggleReviewCart">@(hideReviewCart ? "Mostrar" : "Ocultar")</button>
+            </div>
+            @foreach (ReviewItemForCreateDTO item in review.ReviewItems)
             {
                 <div class="row">
-                    <button class="btn btn-light mb-1"
-                            @onclick="() => RemoveDevice(item)">
-                        x Device @item.DeviceId
-                    </button>
+                    <button type="button" class="btn btn-light" id="removeDevice_@item.DeviceId" @onclick="@(() => RemoveReviewItem(item))">Device @item.DeviceId</button>
                 </div>
             }
-
-            <button class="btn btn-primary mt-3"
-                    @onclick="GoToStep5">
-                Review devices
-            </button>
+            <div class="row">
+                <button type="button" class="btn btn-primary" id="DevicesReviewButton" @onclick=@ReviewDevices>Review</button>
+            </div>
         </div>
 
     </div>
@@ -145,111 +97,112 @@
 </div>
 
 @code {
-    private string debugJson = ""; //Para depuración. Luego borrar
+    private string debugJson = "";
 
-    // Dispositivos cargados desde la API
     private IList<ReviewItemDTO>? devices;
-
-    // Lista de marcas para el filtro
     private List<string> brands = new();
     private List<string> years = new();
 
+    private string deviceBrand = "";
+    private string deviceYear = "";
+    
     private string filterName = "";
     private string filterBrand = "All";
     private string filterYear = "All";
 
-
     private string Errors = "";
     private bool HideErrors => string.IsNullOrEmpty(Errors);
+    private bool hideReviewCart = false;
 
     private ReviewForCreateDTO review => reviewState.Review;
-
     private bool HideCart => review.ReviewItems.Count == 0;
 
-    // -- CARGA INICIAL (Paso 2)
+    // Método auxiliar para acceder a la propiedad year
+    private int GetDeviceYear(ReviewItemDTO device)
+    {
+        var yearProperty = device.GetType().GetProperty("year");
+        if (yearProperty != null)
+        {
+            return (int)yearProperty.GetValue(device);
+        }
+        return 0;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
             devices = (await apiclient.GetDevicesForReviewAsync()).ToList();
 
-            //Linea depuración. Guarda el JSON. Luego borrar
             var options = new System.Text.Json.JsonSerializerOptions 
             { 
                 WriteIndented = true,
-                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase //NPI de q es esto
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
             };
-            debugJson = System.Text.Json.JsonSerializer.Serialize(devices, options); //Tb borrar luego este bloque
-
+            debugJson = System.Text.Json.JsonSerializer.Serialize(devices, options);
 
             brands = devices
-                .Select(d => d.Brand) //Donde pone d.Name, antes ponia d.brand
+                .Select(d => d.Brand)
                 .Distinct()
                 .OrderBy(b => b)
                 .ToList();
 
             years = devices
-                .Select(d => d.Year.ToString())
+                .Select(d => GetDeviceYear(d).ToString())
                 .Distinct()
                 .OrderBy(y => y)
                 .ToList();
-
-
         }
-        catch
+        catch (System.Exception ex)
         {
             Errors = "Error loading devices.";
+            logger.LogError(ex, "Error al cargar dispositivos");
         }
     }
 
-    // -- Añadir dispositivo al carrito
     private void AddDevice(ReviewItemDTO d)
     {
         reviewState.AddDeviceToReview(d);
     }
 
-    // -- Eliminar dispositivo del carrito
-    private void RemoveDevice(ReviewItemForCreateDTO item)
+    private void RemoveReviewItem(ReviewItemForCreateDTO item)
     {
         reviewState.RemoveDeviceFromReview(item);
     }
 
-    // -- Ir al paso 5 (rellenar reseña)
-    private void GoToStep5()
+    private void ToggleReviewCart()
+    {
+        hideReviewCart = !hideReviewCart;
+    }
+
+    private void ReviewDevices()
     {
         navigation.NavigateTo("/review/createReview");
     }
 
-    // -- FILTRO DE DISPOSITIVOS
     private async Task SearchDevices()
     {
         try
         {
             devices = (await apiclient.GetDevicesForReviewAsync()).ToList();
 
-            //Filtro por nombre
-            if (!string.IsNullOrWhiteSpace(filterName))
+            if (!string.IsNullOrWhiteSpace(deviceBrand))
                 devices = devices
-                    .Where(d => d.Name.Contains(filterName, StringComparison.OrdinalIgnoreCase))
+                    .Where(d => d.Name.Contains(deviceBrand, StringComparison.OrdinalIgnoreCase))
                     .ToList();
-            // Filtro por narca o yks. Seguramente habra q borrarlo
-            // if (filterBrand != "All")
-            //     devices = devices
-            //         .Where(d => d.Name == filterBrand) Antes ponía en vez de d.Name ponía d.Brand
-            //         .ToList();
 
-            //filtro por año
-            if (filterYear != "All")
+
+            if (!string.IsNullOrWhiteSpace(deviceYear) && int.TryParse(deviceYear, out int year))
                 devices = devices
-                    .Where(d => d.Year.ToString() == filterYear)
-                    .ToList();
+                    .Where(d => GetDeviceYear(d) == year)
+                    .ToList();  
 
             Errors = "";
         }
-        catch
+        catch (System.Exception ex)
         {
             Errors = "Error searching devices.";
+            logger.LogError(ex, "Error al buscar dispositivos");
         }
     }
-
 }
