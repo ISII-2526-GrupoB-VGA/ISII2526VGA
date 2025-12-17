@@ -20,7 +20,8 @@
         </div>  @*Lo q está dentro de estos divs ns si tiene q estar*@
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/Review/selectDeviceForReview">
+            <NavLink class="nav-link" id="CreateReview" href="/Review/selectDeviceForReview">
+                @*Aqui cree el id *@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Review @*//#Aquí cambie *@
             </NavLink>
         </div>
@@ -98,7 +99,7 @@
     </nav>
 </div>
 
-@code {
+@code { 
     private string? currentUrl;
 
     protected override void OnInitialized()
