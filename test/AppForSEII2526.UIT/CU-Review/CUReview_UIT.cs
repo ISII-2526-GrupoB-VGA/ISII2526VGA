@@ -257,6 +257,47 @@ namespace AppForSEII2526.UIT.CU_Review
 
         //ESE ES EL UNO No voy a enviarlo porque no funciona bien. Luego lo arreglo.
 
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC3_1_CreateReviewSuccessfully()
+        {
+            // Arrange
+            var createReview = new CreateReviewPO(_driver, _output);
+            var detailReview = new DetailReviewPO(_driver, _output);
+
+            InitialStepsForReviewDevice_UIT();
+
+            // 1. Seleccionar dispositivo
+            selectDevices.SeleccionarDevices(new List<string> { deviceId1.ToString() });
+            selectDevices.GoToReview();
+
+            // 2. Rellenar datos válidos
+            createReview.FillInReviewInfo(
+                "Título película",
+                "alicia@example.com",
+                "Spain"
+            );
+
+            createReview.AddDeviceReviewComent(
+                deviceId1,
+                "Reseña para un dispositivo"
+            );
+
+            createReview.AddDeviceReviewRating(deviceId1, 5);
+
+            // 3. Enviar reseña
+            createReview.PressReviewYourDevices();
+            Thread.Sleep(1000);
+
+            
+            _driver.Navigate().GoToUrl("/review/detailreview?ReviewID=1");
+            Thread.Sleep(1000);
+
+            // asserts del detail
+            Assert.True(detailReview.CheckReviewDetail("Spain", "Título película"));
+            Assert.True(detailReview.IsDeviceShownInDetail(deviceId1));
+
+        }
 
 
 
