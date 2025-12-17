@@ -38,26 +38,90 @@ namespace AppForSEII2526.UIT.CU_Review
 
         private void InitialStepsForReviewDevice_UIT()
         {
-            Precondition_perform_login();
+            
             Thread.Sleep(1000);
 
             selectDevices.WaitForBeingVisibleIgnoringExeptionTypes(By.Id("CreateReview"));
             _driver.FindElement(By.Id("CreateReview")).Click();
         }
 
-        [Fact]
+        [Fact] //Con esto compruebo que el filtro de busqueda de marca funciona correctamente
         [Trait("LevelTesting", "Functional Testing")]
-        public void UC3_FilterDevices_ByBrandAndYear()
+        public void UC3_2FilterDevices_ByBrand()
         {
             // Arrange
             InitialStepsForReviewDevice_UIT();
 
             // Act
-            selectDevices.SearchDevices(deviceBrand1, deviceYear1);
+            selectDevices.SearchDevicesByBrand(deviceBrand1);
 
             // Assert
             Assert.True(selectDevices.IsDeviceInTable(deviceId1));
+
+            Thread.Sleep(1000);
         }
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC3_3FilterDevices_ByYear()
+        {
+            // Arrange
+            InitialStepsForReviewDevice_UIT();
+
+            // Act
+            selectDevices.SearchDevicesByYear(deviceYear1);
+
+            // Assert
+            Assert.True(selectDevices.IsDeviceInTable(deviceId1));
+
+            Thread.Sleep(1000);
+        }
+
+
+
+        [Fact]
+        [Trait("LevelTesting", "Funcional Testing")] //Esta es la de eliminar 1 dispositivo
+        public void UC3_4_ModifySelectDevices()
+        {
+            //Arrange
+            //Act
+            InitialStepsForReviewDevice_UIT();
+
+            selectDevices.SeleccionarDevices(new List<string> { deviceId1.ToString(), deviceId2.ToString() });
+            Thread.Sleep(1000);
+            selectDevices.ModificarCarrito(deviceId2);
+
+
+            //Assert            
+            Assert.True(selectDevices.VerElCarrito(deviceId1));
+        }
+
+        
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC3_5_ReviewButtonNotAvailable_WhenCartIsEmpty()
+        {
+            // Arrange
+            InitialStepsForReviewDevice_UIT();
+
+            // Act
+            // Añadimos un dispositivo
+            selectDevices.SeleccionarDevices(new List<string> { deviceId1.ToString() });
+            Thread.Sleep(500);
+
+            // Lo eliminamos → carrito vacío
+            selectDevices.ModificarCarrito(deviceId1);
+            Thread.Sleep(500);
+
+            // Assert
+            Assert.False(
+                selectDevices.ReviewButtonExists(),
+                "Review button should NOT be available when the cart is empty"
+            );
+        }
+
+
 
 
     }
