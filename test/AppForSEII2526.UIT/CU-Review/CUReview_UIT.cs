@@ -289,11 +289,17 @@ namespace AppForSEII2526.UIT.CU_Review
             createReview.PressReviewYourDevices();
             Thread.Sleep(1000);
 
-            
-            _driver.Navigate().GoToUrl("/review/detailreview?ReviewID=1");
+            // Assert: no hay error
+            Assert.False(
+                _driver.PageSource.Contains("Error"),
+                "The review should be created successfully"
+            );
+
+
+            string baseUrl = _driver.Url.Split("/review")[0];
+            _driver.Navigate().GoToUrl($"{baseUrl}/review/detailreview?ReviewID=1");
             Thread.Sleep(1000);
 
-            // asserts del detail
             Assert.True(detailReview.CheckReviewDetail("Spain", "Título película"));
             Assert.True(detailReview.IsDeviceShownInDetail(deviceId1));
 
