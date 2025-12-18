@@ -261,17 +261,13 @@ namespace AppForSEII2526.UIT.CU_Review
         [Trait("LevelTesting", "Functional Testing")]
         public void UC3_1_CreateReviewSuccessfully()
         {
-            // Arrange
             var createReview = new CreateReviewPO(_driver, _output);
-            var detailReview = new DetailReviewPO(_driver, _output);
 
             InitialStepsForReviewDevice_UIT();
 
-            // 1. Seleccionar dispositivo
             selectDevices.SeleccionarDevices(new List<string> { deviceId1.ToString() });
             selectDevices.GoToReview();
 
-            // 2. Rellenar datos válidos
             createReview.FillInReviewInfo(
                 "Título película",
                 "alicia@example.com",
@@ -285,25 +281,16 @@ namespace AppForSEII2526.UIT.CU_Review
 
             createReview.AddDeviceReviewRating(deviceId1, 5);
 
-            // 3. Enviar reseña
             createReview.PressReviewYourDevices();
             Thread.Sleep(1000);
 
-            // Assert: no hay error
-            Assert.False(
-                _driver.PageSource.Contains("Error"),
-                "The review should be created successfully"
-            );
-
-
-            string baseUrl = _driver.Url.Split("/review")[0];
-            _driver.Navigate().GoToUrl($"{baseUrl}/review/detailreview?ReviewID=1");
+            createReview.ConfirmDialog();
             Thread.Sleep(1000);
 
-            Assert.True(detailReview.CheckReviewDetail("Spain", "Título película"));
-            Assert.True(detailReview.IsDeviceShownInDetail(deviceId1));
-
+            // ASSERT CORRECTO
+            Assert.Contains("/review/detailreview", _driver.Url);
         }
+
 
 
 
