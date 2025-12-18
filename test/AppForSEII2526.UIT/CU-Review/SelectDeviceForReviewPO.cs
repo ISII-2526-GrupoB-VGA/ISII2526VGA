@@ -41,6 +41,18 @@ namespace AppForSEII2526.UIT.CU_Review
             Thread.Sleep(2000);
         }
 
+        public void CleanBrand()
+        {
+            WaitForBeingVisible(inputBrand);
+            _deviceBrand().Clear();
+        }
+
+        public void CleanYear()
+        {
+            WaitForBeingVisible(inputYear);
+            _deviceYear().Clear();
+        }
+
         public void ClickReviewButton()
         {
             WaitForBeingVisible(DevicesReviewButton);
