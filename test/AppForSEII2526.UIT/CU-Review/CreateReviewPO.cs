@@ -114,6 +114,29 @@ namespace AppForSEII2526.UIT.CU_Review
             return _customerCountry().GetAttribute("value");
         }
 
+        //public void ConfirmDialog()
+        //{
+        //    // Esperamos a que aparezca el texto del diálogo
+        //    WaitForBeingVisible(By.XPath("//button[normalize-space()='Save']"));
+
+        //    var saveButton = _driver.FindElement(
+        //        By.XPath("//button[normalize-space()='Save']")
+        //    );
+
+        //    saveButton.Click();
+        //}
+
+        public void ConfirmDialog()
+        {
+            var okButtonBy = By.Id("Button_DialogOK");
+
+            WaitForBeingVisible(okButtonBy);
+            WaitForBeingClickable(okButtonBy);
+
+            _driver.FindElement(okButtonBy).Click();
+        }
+
+
 
 
     }

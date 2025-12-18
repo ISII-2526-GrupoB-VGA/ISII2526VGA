@@ -1,34 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OpenQA.Selenium;
+using Xunit.Abstractions;
 
 namespace AppForSEII2526.UIT.CU_Review
 {
     public class DetailReviewPO : PageObject
     {
+        private By _reviewTitleBy = By.Id("ReviewTitle");
+        private By _countryBy = By.Id("CustomerCountry");
+
         public DetailReviewPO(IWebDriver driver, ITestOutputHelper output)
             : base(driver, output)
         {
         }
-        public bool CheckReviewDetail(string country, string reviewTitle)
+
+        public bool CheckReviewDetail(string expectedCountry, string expectedTitle)
         {
-            WaitForBeingVisible(By.Id("ReviewTitle"));
+            try
+            {
+                WaitForBeingVisible(_reviewTitleBy);
 
-            bool result = true;
+                var titleText = _driver.FindElement(_reviewTitleBy).Text;
+                var countryText = _driver.FindElement(_countryBy).Text;
 
-            result &= _driver.FindElement(By.Id("CustomerCountry"))
-                             .Text.Contains(country);
-
-            result &= _driver.FindElement(By.Id("ReviewTitle"))
-                             .Text.Contains(reviewTitle);
-
-            return result;
+                return
+                    titleText.Contains(expectedTitle) &&
+                    countryText.Contains(expectedCountry);
+            }
+            catch
+            {
+                return false;
+            }
         }
-
-
-
 
         public bool IsDeviceShownInDetail(int deviceId)
         {
