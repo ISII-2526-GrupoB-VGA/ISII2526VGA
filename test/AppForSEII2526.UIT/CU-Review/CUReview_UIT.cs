@@ -28,7 +28,7 @@ namespace AppForSEII2526.UIT.CU_Review
         private const string deviceName2 = "Samsung";
         private const string deviceBrand2 = "Galaxy S24";
         private const string deviceColor2 = "Black";
-        private const int deviceYear2 = 2024;
+        private const int deviceYear2 = 0;
         private const string deviceModel2 = "Galaxy S24";
 
         private void Precondition_perform_login()
@@ -213,49 +213,6 @@ namespace AppForSEII2526.UIT.CU_Review
 
 
 
-        //        [Fact]
-        //        [Trait("LevelTesting", "Functional Testing")]
-        //        public void UC3_1_CreateReviewSuccessfully()
-        //        {
-        //            // Arrange
-        //            var createReview = new CreateReviewPO(_driver, _output);
-        //            var detailReview = new DetailReviewPO(_driver, _output);
-
-        //            InitialStepsForReviewDevice_UIT();
-
-        //            // Seleccionar dispositivo
-        //            selectDevices.SeleccionarDevices(new List<string> { deviceId1.ToString() });
-        //            selectDevices.GoToReview();
-
-        //            // Rellenar datos
-        //            createReview.FillInReviewInfo(
-        //                "Título película",
-        //                "alicia@example.com",
-        //                "Spain"
-        //            );
-
-        //            createReview.AddDeviceReviewComent(
-        //                deviceId1,
-        //                "Reseña para un dispositivo"
-        //            );
-
-        //            createReview.AddDeviceReviewRating(deviceId1, 5);
-
-        //            createReview.PressReviewYourDevices();
-
-        //            // Assert detalle
-        //            Assert.True(
-        //            detailReview.CheckReviewDetail(
-        //                "Spain",
-        //                "Título película"
-        //            )
-        //);
-
-
-        //            Assert.True(detailReview.IsDeviceShownInDetail(deviceId1));
-        //        }
-
-        //ESE ES EL UNO No voy a enviarlo porque no funciona bien. Luego lo arreglo.
 
         [Fact]
         [Trait("LevelTesting", "Functional Testing")]
@@ -292,7 +249,63 @@ namespace AppForSEII2526.UIT.CU_Review
         }
 
 
+        //[Fact]
+        //[Trait("LevelTesting", "Functional Testing")]
+        //public void UCPrueba()
+        //{
+        //    // Arrange
+        //    InitialStepsForReviewDevice_UIT();
 
+        //    // Act
+        //    selectDevices.SearchDevicesByBrand(deviceBrand1);
+
+        //    Thread.Sleep(1000);
+
+        //    selectDevices.SeleccionarDevices(new List<string> { deviceId1.ToString() }); //Seleccione el deviec 1
+        //    Thread.Sleep(1000);
+
+        //    selectDevices.CleanBrand();
+        //    Thread.Sleep(1000);
+
+        //    selectDevices.SearchDevicesByYear(deviceYear2);
+        //    Thread.Sleep(1000);
+        //    selectDevices.SeleccionarDevices(new List<string> { deviceId2.ToString() }); //Seleccione el device 2
+        //    Thread.Sleep(1000);
+
+        //    selectDevices.ModificarCarrito(deviceId1);
+        //    Thread.Sleep(1000);
+
+        //    selectDevices.GoToReview();
+
+
+        //    var createReview = new CreateReviewPO(_driver, _output);
+
+        //    createReview.FillInReviewInfo(
+        //        "Título película",
+        //        "alicia@example.com",
+        //        "Spain"
+        //    );
+
+        //    createReview.AddDeviceReviewComent(
+        //        deviceId2,
+        //        "Reseña para un dispositivo"
+        //    );
+
+        //    Thread.Sleep(1000);
+
+        //    createReview.AddDeviceReviewRating(deviceId2, 5);
+
+        //    Thread.Sleep(1000);
+
+        //    createReview.PressReviewYourDevices();
+        //    Thread.Sleep(1000);
+
+        //    createReview.ConfirmDialog();
+        //    Thread.Sleep(1000);
+
+        //    // ASSERT CORRECTO
+        //    Assert.Contains("/review/detailreview", _driver.Url);
+        //}
 
 
     }
