@@ -354,51 +354,35 @@ namespace AppForSEII2526.UIT.PurchaseDevices
             Assert.True(createPurchase.CheckPurchaseItemsTableHasAtLeastRows(2));
         }
 
-        /*
         [Fact]
         [Trait("LevelTesting", "Functional Testing")]
-        public void UC1_11_FilterName_Add_FilterColor_Add_RemoveFirst_FinishPurchase()
+        public void ExamenSprint3()
         {
             var createPurchase = new CreatePurchase_PO(_driver, _output);
             var detailPurchase = new DetailPurchase_PO(_driver, _output);
 
             InitialStepsForPurchaseDevices_UIT();
 
-            // filtra por nombre
-            selectDevices.FilterDevices(filterName_iPhone, "");
-
-            // añade móvil al carrito
-            selectDevices.SelectDevicesByName(new List<string> { deviceName_iPhoneRow });
-
-            // filtra por color
-            selectDevices.FilterDevices("", "Black");
-
-            // añade móvil al carrito
-            selectDevices.SelectDevicesByName(new List<string> { deviceName_GalaxyRow });
-
-            // elimina el móvil del carrito
-            RemoveCartItemByContainsText(expectedModel_iPhone15);
-
-            // pasa a crear compra
-            selectDevices.GoToCreatePurchase();
-
-            // rellena datos de compra
+            selectDevices.SelectDevicesByName(new List<string> { deviceName_GalaxyRow });//1
+            selectDevices.FilterDevices(filterName_iPhone, "");//2
+            selectDevices.SelectDevicesByName(new List<string> { deviceName_iPhoneRow });//3
+            RemoveCartItemByContainsText(expectedModel_GalaxyS24);//4
+            selectDevices.GoToCreatePurchase();//5
             var deviceId = GetFirstPurchaseItemDeviceId();
             createPurchase.FillInPurchaseInfo(firstName_Alicia, lastName_Perez, deliveryAddress_CMayor, paymentMethod_PayPal);
             createPurchase.FillInPurchaseDescription(giftDescription, deviceId);
-
-            // confirma compra (modal OK)
             createPurchase.PressConfirmPurchase();
             createPurchase.ConfirmPurchaseInDialog();
-
-            // valida detalle de compra
             Assert.True(detailPurchase.CheckPurchaseDetail(
                 $"{firstName_Alicia} {lastName_Perez}",
                 deliveryAddress_CMayor,
                 DateTime.Now,
-                "699",
+                "799",
                 "1"));
+
         }
-        */
+
+        
+
     }
 }
