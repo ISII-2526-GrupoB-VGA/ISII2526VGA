@@ -26,7 +26,7 @@ namespace AppForSEII2526.UIT.CU_Review
 
         private const int deviceId2 = 2;
         private const string deviceName2 = "Samsung";
-        private const string deviceBrand2 = "Galaxy S24";
+        private const string deviceBrand2 = "Samsung";
         private const string deviceColor2 = "Black";
         private const int deviceYear2 = 0;
         private const string deviceModel2 = "Galaxy S24";
@@ -213,7 +213,6 @@ namespace AppForSEII2526.UIT.CU_Review
 
 
 
-
         [Fact]
         [Trait("LevelTesting", "Functional Testing")]
         public void UC3_1_CreateReviewSuccessfully()
@@ -249,63 +248,69 @@ namespace AppForSEII2526.UIT.CU_Review
         }
 
 
-        //[Fact]
-        //[Trait("LevelTesting", "Functional Testing")]
-        //public void UCPrueba()
-        //{
-        //    // Arrange
-        //    InitialStepsForReviewDevice_UIT();
-
-        //    // Act
-        //    selectDevices.SearchDevicesByBrand(deviceBrand1);
-
-        //    Thread.Sleep(1000);
-
-        //    selectDevices.SeleccionarDevices(new List<string> { deviceId1.ToString() }); //Seleccione el deviec 1
-        //    Thread.Sleep(1000);
-
-        //    selectDevices.CleanBrand();
-        //    Thread.Sleep(1000);
-
-        //    selectDevices.SearchDevicesByYear(deviceYear2);
-        //    Thread.Sleep(1000);
-        //    selectDevices.SeleccionarDevices(new List<string> { deviceId2.ToString() }); //Seleccione el device 2
-        //    Thread.Sleep(1000);
-
-        //    selectDevices.ModificarCarrito(deviceId1);
-        //    Thread.Sleep(1000);
-
-        //    selectDevices.GoToReview();
 
 
-        //    var createReview = new CreateReviewPO(_driver, _output);
+        //----------------------EXAMEN----------------------
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UCExamen_Sprint_3()
+        {
+            //Arrange
+            InitialStepsForReviewDevice_UIT();
 
-        //    createReview.FillInReviewInfo(
-        //        "Título película",
-        //        "alicia@example.com",
-        //        "Spain"
-        //    );
+            // Act
+            //selectDevices.SearchDevicesByBrand(deviceBrand1);
 
-        //    createReview.AddDeviceReviewComent(
-        //        deviceId2,
-        //        "Reseña para un dispositivo"
-        //    );
+            Thread.Sleep(1000);
+            //Añado un elemento
+            selectDevices.SeleccionarDevices(new List<string> { deviceId1.ToString() }); //Seleccione el deviec 1
+            Thread.Sleep(1000);
 
-        //    Thread.Sleep(1000);
+            //Filtro por marca
+            selectDevices.SearchDevicesByBrand(deviceBrand2);
 
-        //    createReview.AddDeviceReviewRating(deviceId2, 5);
+            Thread.Sleep(1000);
+            //Añado otro elemento
+            selectDevices.SeleccionarDevices(new List<string> { deviceId2.ToString() }); //Seleccione el deviec 1
+            //Quito el primer elemento
+            selectDevices.ModificarCarrito(deviceId1);
+            Thread.Sleep(1000);
 
-        //    Thread.Sleep(1000);
+            //Aquí sigo con todo el proceso de hacer la review
+            selectDevices.GoToReview();
 
-        //    createReview.PressReviewYourDevices();
-        //    Thread.Sleep(1000);
+            Thread.Sleep(1000);
 
-        //    createReview.ConfirmDialog();
-        //    Thread.Sleep(1000);
+            var createReview = new CreateReviewPO(_driver, _output);
 
-        //    // ASSERT CORRECTO
-        //    Assert.Contains("/review/detailreview", _driver.Url);
-        //}
+            createReview.FillInReviewInfo(
+                "Título película",
+                "alicia@example.com",
+                "Spain"
+            );
+
+            createReview.AddDeviceReviewComent(
+                deviceId2,
+                "Reseña para un dispositivo"
+            );
+
+            Thread.Sleep(1000);
+
+            createReview.AddDeviceReviewRating(deviceId2, 5);
+
+            Thread.Sleep(1000);
+
+            createReview.PressReviewYourDevices();
+            Thread.Sleep(1000);
+
+            createReview.ConfirmDialog();
+            Thread.Sleep(1000);
+
+            //Assert
+            Assert.Contains("/review/detailreview", _driver.Url);
+            Thread.Sleep(1000);
+        }
+
 
 
     }
