@@ -119,7 +119,7 @@ namespace AppForSEII2526.UIT.CU_Review
             var removeButton = By.Id($"removeDevice_{deviceId}");
             WaitForBeingVisible(removeButton);
             _driver.FindElement(removeButton).Click();
-            Thread.Sleep(500); // Esperar a que se actualice el carrito
+            //Thread.Sleep(500); // Esperar a que se actualice el carrito
         }
 
         public bool VerElCarrito(int deviceId)
