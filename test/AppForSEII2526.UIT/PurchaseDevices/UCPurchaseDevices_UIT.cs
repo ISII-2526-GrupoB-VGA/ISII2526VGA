@@ -12,6 +12,7 @@ namespace AppForSEII2526.UIT.PurchaseDevices
     {
         public UCPurchaseDevices_UIT(ITestOutputHelper output) : base(output)
         {
+            // abre la web y crea el PageObject principal
             Initial_step_opening_the_web_page();
             selectDevices = new SelectDevicesForPurchase_PO(_driver, _output);
         }
@@ -46,11 +47,13 @@ namespace AppForSEII2526.UIT.PurchaseDevices
 
         private void Precondition_perform_login()
         {
+            // login con usuario seed
             Perform_login(customerEmail, customerPassword);
         }
 
         private void EnsureCartEmpty()
         {
+            // vacía el carrito para que las pruebas no se contaminen entre sí
             var removeButtons = _driver.FindElements(By.CssSelector("button[id^='removeDevice_']"));
             while (removeButtons.Count > 0)
             {
@@ -62,14 +65,18 @@ namespace AppForSEII2526.UIT.PurchaseDevices
 
         private void InitialStepsForPurchaseDevices_UIT()
         {
+            // login + navega a selección de dispositivos
             Precondition_perform_login();
             _driver.Navigate().GoToUrl(_URI + "purchase/SelectDevForPurchase");
+
+            // espera la tabla y deja el carrito limpio
             selectDevices.WaitForBeingVisibleIgnoringExeptionTypes(By.Id("TableOfDevices"));
             EnsureCartEmpty();
         }
 
         private void RemoveCartItemByContainsText(string containsText)
         {
+            // elimina un elemento del carrito buscando un fragmento en el texto del botón remove
             var buttons = _driver.FindElements(By.CssSelector("button[id^='removeDevice_']"));
             if (buttons.Count == 0)
                 throw new NoSuchElementException("No cart items to remove.");
@@ -88,8 +95,9 @@ namespace AppForSEII2526.UIT.PurchaseDevices
 
         private int GetFirstPurchaseItemDeviceId()
         {
+            // obtiene el DeviceID de la primera fila (PurchaseItem_{DeviceID})
             var row = _driver.FindElement(By.CssSelector("tr[id^='PurchaseItem_']"));
-            var id = row.GetAttribute("id"); // "PurchaseItem_123"
+            var id = row.GetAttribute("id");
             if (string.IsNullOrWhiteSpace(id) || !id.StartsWith("PurchaseItem_"))
                 throw new InvalidOperationException("Cannot read PurchaseItem_{DeviceID} row id.");
 
@@ -106,17 +114,24 @@ namespace AppForSEII2526.UIT.PurchaseDevices
 
             InitialStepsForPurchaseDevices_UIT();
 
+            // añade móvil al carrito
             selectDevices.SelectDevicesByName(new List<string> { deviceName_iPhoneRow });
+
+            // pasa a crear compra
             selectDevices.GoToCreatePurchase();
 
+            // obtiene DeviceID para escribir descripción
             var deviceId = GetFirstPurchaseItemDeviceId();
 
+            // rellena datos de compra
             createPurchase.FillInPurchaseInfo(firstName_Alicia, lastName_Perez, deliveryAddress_CMayor, paymentMethod_PayPal);
             createPurchase.FillInPurchaseDescription(giftDescription, deviceId);
 
+            // confirma compra (modal OK)
             createPurchase.PressConfirmPurchase();
             createPurchase.ConfirmPurchaseInDialog();
 
+            // valida detalle de compra
             Assert.True(
                 detailPurchase.CheckPurchaseDetail(
                     $"{firstName_Alicia} {lastName_Perez}",
@@ -126,6 +141,7 @@ namespace AppForSEII2526.UIT.PurchaseDevices
                     "1"),
                 "El resumen de la compra no coincide con lo esperado.");
 
+            // valida tabla de dispositivos comprados
             var expectedItems = new List<string[]>
             {
                 new string[] { expectedBrand_Apple, expectedModel_iPhone15, filterColor_Blue, expectedPrice_799 + " €", "1", giftDescription }
@@ -136,7 +152,7 @@ namespace AppForSEII2526.UIT.PurchaseDevices
         }
 
         // UC1_2
-        [Fact(Skip = "Necesitas un mecanismo reproducible (seed/script) para dejar 0 dispositivos disponibles.")]
+        [Fact(Skip = "No se puede hacer porque siempre hay un dispositivo disponible debido al seed.")]
         [Trait("LevelTesting", "Functional Testing")]
         public void UC1_2_Esc2_NoDevicesAvailable_ShowsWarning()
         {
@@ -154,7 +170,10 @@ namespace AppForSEII2526.UIT.PurchaseDevices
 
             InitialStepsForPurchaseDevices_UIT();
 
+            // filtra por nombre
             selectDevices.FilterDevices(filterName_iPhone, "");
+
+            // valida resultados del filtro
             Assert.True(selectDevices.CheckListOfDevices(expected));
         }
 
@@ -170,7 +189,10 @@ namespace AppForSEII2526.UIT.PurchaseDevices
 
             InitialStepsForPurchaseDevices_UIT();
 
+            // filtra por color
             selectDevices.FilterDevices("", filterColor_Blue);
+
+            // valida resultados del filtro
             Assert.True(selectDevices.CheckListOfDevices(expected));
         }
 
@@ -181,13 +203,17 @@ namespace AppForSEII2526.UIT.PurchaseDevices
         {
             InitialStepsForPurchaseDevices_UIT();
 
+            // añade dos móviles al carrito
             selectDevices.SelectDevicesByName(new List<string> { deviceName_iPhoneRow, deviceName_GalaxyRow });
 
+            // comprueba total del carrito
             Assert.True(selectDevices.CheckShoppingCartTotalContains("1498"));
             Assert.True(selectDevices.CheckShoppingCartTotalContains("2 items"));
 
+            // elimina el móvil del carrito
             RemoveCartItemByContainsText(expectedModel_GalaxyS24);
 
+            // comprueba total actualizado
             Assert.True(selectDevices.CheckShoppingCartTotalContains(expectedPrice_799));
             Assert.True(selectDevices.CheckShoppingCartTotalContains("1 items"));
         }
@@ -199,6 +225,7 @@ namespace AppForSEII2526.UIT.PurchaseDevices
         {
             InitialStepsForPurchaseDevices_UIT();
 
+            // comprueba que no se puede continuar si el carrito está vacío
             Assert.True(selectDevices.CheckPurchaseDisabledOrNotAvailable());
         }
 
@@ -214,12 +241,19 @@ namespace AppForSEII2526.UIT.PurchaseDevices
 
             InitialStepsForPurchaseDevices_UIT();
 
+            // añade móvil al carrito
             selectDevices.SelectDevicesByName(new List<string> { deviceName_iPhoneRow });
+
+            // pasa a crear compra
             selectDevices.GoToCreatePurchase();
 
+            // rellena datos (con campo obligatorio vacío según el caso)
             createPurchase.FillInPurchaseInfo(firstName, lastName, deliveryAddress, paymentMethod);
+
+            // intenta confirmar
             createPurchase.PressConfirmPurchase();
 
+            // comprueba error mostrado
             Assert.True(createPurchase.CheckErrorsShownContains(expectedError));
         }
 
@@ -232,16 +266,23 @@ namespace AppForSEII2526.UIT.PurchaseDevices
 
             InitialStepsForPurchaseDevices_UIT();
 
+            // añade móvil al carrito
             selectDevices.SelectDevicesByName(new List<string> { deviceName_iPhoneRow });
+
+            // pasa a crear compra
             selectDevices.GoToCreatePurchase();
 
+            // rellena datos con método de pago válido
             createPurchase.FillInPurchaseInfo(firstName_Alicia, lastName_Perez, deliveryAddress_CMayor, paymentMethod_PayPal);
 
+            // deja el método de pago vacío
             var paymentSelect = new SelectElement(_driver.FindElement(By.Id("PaymentMethod")));
             paymentSelect.SelectByValue("");
 
+            // intenta confirmar
             createPurchase.PressConfirmPurchase();
 
+            // comprueba error mostrado
             Assert.True(createPurchase.CheckErrorsShownContains(err_MissingPaymentMethod));
         }
 
@@ -254,15 +295,25 @@ namespace AppForSEII2526.UIT.PurchaseDevices
 
             InitialStepsForPurchaseDevices_UIT();
 
+            // añade móvil al carrito
             selectDevices.SelectDevicesByName(new List<string> { deviceName_iPhoneRow });
+
+            // pasa a crear compra
             selectDevices.GoToCreatePurchase();
 
+            // obtiene DeviceID para modificar cantidad
             var deviceId = GetFirstPurchaseItemDeviceId();
 
+            // rellena datos de compra
             createPurchase.FillInPurchaseInfo(firstName_Alicia, lastName_Perez, deliveryAddress_CMayor, paymentMethod_PayPal);
+
+            // pone cantidad inválida
             createPurchase.FillInPurchaseQuantity(0, deviceId);
+
+            // intenta confirmar
             createPurchase.PressConfirmPurchase();
 
+            // comprueba error mostrado
             Assert.True(createPurchase.CheckErrorsShownContains(err_MissingQuantity));
         }
 
@@ -275,21 +326,79 @@ namespace AppForSEII2526.UIT.PurchaseDevices
 
             InitialStepsForPurchaseDevices_UIT();
 
+            // añade móvil al carrito
             selectDevices.SelectDevicesByName(new List<string> { deviceName_iPhoneRow });
+
+            // pasa a crear compra
             selectDevices.GoToCreatePurchase();
 
+            // rellena datos de compra
             createPurchase.FillInPurchaseInfo(firstName_Alicia, lastName_Perez, deliveryAddress_CMayor, paymentMethod_PayPal);
+
+            // vuelve a seleccionar dispositivos
             createPurchase.PressModifyDevices();
 
+            // añade otro móvil al carrito
             selectDevices.WaitForBeingVisibleIgnoringExeptionTypes(By.Id("TableOfDevices"));
             selectDevices.SelectDevicesByName(new List<string> { deviceName_GalaxyRow });
+
+            // regresa a crear compra
             selectDevices.GoToCreatePurchase();
 
+            // comprueba que se mantienen los datos introducidos
             Assert.Equal(firstName_Alicia, createPurchase.GetFirstNameValue());
             Assert.Equal(lastName_Perez, createPurchase.GetLastNameValue());
             Assert.Equal(deliveryAddress_CMayor, createPurchase.GetDeliveryAddressValue());
 
+            // comprueba que hay al menos 2 items en la tabla
             Assert.True(createPurchase.CheckPurchaseItemsTableHasAtLeastRows(2));
         }
+
+        /*
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC1_11_FilterName_Add_FilterColor_Add_RemoveFirst_FinishPurchase()
+        {
+            var createPurchase = new CreatePurchase_PO(_driver, _output);
+            var detailPurchase = new DetailPurchase_PO(_driver, _output);
+
+            InitialStepsForPurchaseDevices_UIT();
+
+            // filtra por nombre
+            selectDevices.FilterDevices(filterName_iPhone, "");
+
+            // añade móvil al carrito
+            selectDevices.SelectDevicesByName(new List<string> { deviceName_iPhoneRow });
+
+            // filtra por color
+            selectDevices.FilterDevices("", "Black");
+
+            // añade móvil al carrito
+            selectDevices.SelectDevicesByName(new List<string> { deviceName_GalaxyRow });
+
+            // elimina el móvil del carrito
+            RemoveCartItemByContainsText(expectedModel_iPhone15);
+
+            // pasa a crear compra
+            selectDevices.GoToCreatePurchase();
+
+            // rellena datos de compra
+            var deviceId = GetFirstPurchaseItemDeviceId();
+            createPurchase.FillInPurchaseInfo(firstName_Alicia, lastName_Perez, deliveryAddress_CMayor, paymentMethod_PayPal);
+            createPurchase.FillInPurchaseDescription(giftDescription, deviceId);
+
+            // confirma compra (modal OK)
+            createPurchase.PressConfirmPurchase();
+            createPurchase.ConfirmPurchaseInDialog();
+
+            // valida detalle de compra
+            Assert.True(detailPurchase.CheckPurchaseDetail(
+                $"{firstName_Alicia} {lastName_Perez}",
+                deliveryAddress_CMayor,
+                DateTime.Now,
+                "699",
+                "1"));
+        }
+        */
     }
 }
