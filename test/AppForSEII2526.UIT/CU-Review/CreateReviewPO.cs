@@ -60,7 +60,7 @@ namespace AppForSEII2526.UIT.CU_Review
         public void PressReviewYourDevices()
         {
                 WaitForBeingVisible(_SubmitBy);
-            Thread.Sleep(500); // Pequeña pausa para asegurar que el formulario esté listo
+            //Thread.Sleep(500); // Pequeña pausa para asegurar que el formulario esté listo
             _submit().Click();
         }
 
@@ -70,18 +70,18 @@ namespace AppForSEII2526.UIT.CU_Review
             return _driver.PageSource.Contains(expectedError);
         }
 
-        public bool IsSubmitButtonDisabled()
-        {
-            try
-            {
-                WaitForBeingVisible(_SubmitBy);
-                return !_submit().Enabled;
-            }
-            catch (NoSuchElementException)
-            {
-                return true;
-            }
-        }
+        //public bool IsSubmitButtonDisabled()
+        //{
+        //    try
+        //    {
+        //        WaitForBeingVisible(_SubmitBy);
+        //        return !_submit().Enabled;
+        //    }
+        //    catch (NoSuchElementException)
+        //    {
+        //        return true;
+        //    }
+        //}
 
         public void ClickModifyDevices()
         {
