@@ -13,7 +13,7 @@ namespace AppForMovies.UIT.Shared
         private readonly bool _pipeline = false;
 
         // Browser: "Chrome" | "Firefox" | "Edge"
-        private readonly string _browser = "Chrome";
+        private readonly string _browser = "Edge";
 
         protected IWebDriver _driver;
         protected readonly ITestOutputHelper _output;
